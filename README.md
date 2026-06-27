@@ -1,3 +1,3 @@
-# Birthday Present 2026
+# Nethra's 19th Birthday
 
-A personal site hosted on GitHub Pages.
+A birthday gift site for Nethra, hosted on GitHub Pages.

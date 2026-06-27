@@ -15,7 +15,7 @@ const CATALOG = {
   hero: {
     showId: 'us-the-series',
     tagline: 'Happy 19th birthday. Six months in, and you\'re already my favorite story.',
-    meta: '6 Months · Romance · ★★★★★',
+    meta: '6 Months, Romance, ★★★★★',
   },
 
   rows: [
@@ -40,13 +40,13 @@ const CATALOG = {
     'us-the-series': {
       id: 'us-the-series',
       title: 'Us: The Series',
-      meta: 'Limited Series · Romance · ★★★★★ · 2 Episodes',
-      synopsis: 'Six months of us — every moment worth replaying.',
+      meta: 'Limited Series, Romance, ★★★★★, 2 Episodes',
+      synopsis: 'Six months of us. Every moment worth replaying.',
       poster: 'images/shows/01-a.jpg',
       scenes: [
         {
           image: 'images/shows/01-a.jpg',
-          caption: 'Replace this — the moment that started it all.',
+          caption: 'Replace this. The moment that started it all.',
         },
         {
           image: 'images/shows/01-b.jpg',
@@ -57,7 +57,7 @@ const CATALOG = {
     'first-adventures': {
       id: 'first-adventures',
       title: 'First Adventures',
-      meta: 'Adventure · ★★★★★ · 2 Episodes',
+      meta: 'Adventure, ★★★★★, 2 Episodes',
       synopsis: 'Every place is better when you\'re there.',
       poster: 'images/shows/02-a.jpg',
       scenes: [
@@ -74,7 +74,7 @@ const CATALOG = {
     'that-smile': {
       id: 'that-smile',
       title: 'That Smile',
-      meta: 'Portrait · ★★★★★ · 2 Episodes',
+      meta: 'Portrait, ★★★★★, 2 Episodes',
       synopsis: 'The one that stops me mid-sentence every time.',
       poster: 'images/shows/03-a.jpg',
       scenes: [
@@ -91,7 +91,7 @@ const CATALOG = {
     'golden-hour': {
       id: 'golden-hour',
       title: 'Golden Hour',
-      meta: 'Aesthetic · ★★★★★ · 2 Episodes',
+      meta: 'Aesthetic, ★★★★★, 2 Episodes',
       synopsis: 'Light hits you different. So does everything else.',
       poster: 'images/shows/04-a.jpg',
       scenes: [
@@ -101,20 +101,20 @@ const CATALOG = {
         },
         {
           image: 'images/shows/04-b.jpg',
-          caption: 'This photo lives in my head rent-free.',
+          caption: 'This photo lives in my head rent free.',
         },
       ],
     },
     'why-i-love-you': {
       id: 'why-i-love-you',
       title: 'Why I Love You',
-      meta: 'Romance · ★★★★★ · 2 Episodes',
+      meta: 'Romance, ★★★★★, 2 Episodes',
       synopsis: 'A few of the million reasons.',
       poster: 'images/shows/05-a.jpg',
       scenes: [
         {
           image: 'images/shows/05-a.jpg',
-          caption: 'The way you care about people — including me — is everything.',
+          caption: 'The way you care about people, including me, is everything.',
         },
         {
           image: 'images/shows/05-b.jpg',
@@ -125,7 +125,7 @@ const CATALOG = {
     letter: {
       id: 'letter',
       title: 'A Letter For You',
-      meta: 'Special · ★★★★★',
+      meta: 'Special, ★★★★★',
       synopsis: 'Open this one last. I wrote it for today.',
       poster: 'images/letter-cover.jpg',
       isLetter: true,
@@ -138,7 +138,7 @@ const CATALOG = {
     body: [
       'Nethra,',
       '',
-      'I made you this little Netflix because you\'re the only thing I ever want to binge — every moment, every memory, every version of you.',
+      'I made you this little Netflix because you\'re the only thing I ever want to binge. Every moment, every memory, every version of you.',
       '',
       'Six months in, and I already feel like the luckiest person alive. Nineteen looks incredible on you.',
       '',
@@ -150,10 +150,10 @@ const CATALOG = {
 
   loader: {
     messages: [
-      'Loading your memories…',
-      'Preparing something special…',
-      'Setting the scene…',
-      'Almost ready…',
+      'Loading your memories...',
+      'Preparing something special...',
+      'Setting the scene...',
+      'Almost ready...',
     ],
   },
 };

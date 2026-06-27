@@ -51,20 +51,39 @@
     return PLACEHOLDER_CLASSES[hash];
   }
 
+  function imageCandidates(src) {
+    const base = src.replace(/\.(jpe?g|png|webp|heic)$/i, '');
+    const unique = new Set([src, `${base}.jpg`, `${base}.jpeg`, `${base}.png`, `${base}.webp`]);
+    return Array.from(unique);
+  }
+
   function applyImage(element, src, alt, seed) {
     const fallbackClass = placeholderClass(seed);
     element.classList.add(fallbackClass);
     element.setAttribute('aria-label', alt);
 
-    const img = new Image();
-    img.onload = () => {
-      element.style.backgroundImage = `url("${src}")`;
-      element.classList.remove(fallbackClass);
-    };
-    img.onerror = () => {
-      element.style.backgroundImage = '';
-    };
-    img.src = src;
+    const candidates = imageCandidates(src);
+    let index = 0;
+
+    function tryNext() {
+      if (index >= candidates.length) {
+        element.style.backgroundImage = '';
+        return;
+      }
+
+      const img = new Image();
+      img.onload = () => {
+        element.style.backgroundImage = `url("${candidates[index]}")`;
+        element.classList.remove(fallbackClass);
+      };
+      img.onerror = () => {
+        index += 1;
+        tryNext();
+      };
+      img.src = candidates[index];
+    }
+
+    tryNext();
   }
 
   function buildShowLookup() {
@@ -290,13 +309,36 @@
     });
   }
 
-  function init() {
-    buildShowLookup();
-    renderProfiles();
-    renderHero();
-    renderRows();
-    bindEvents();
+  function showBootError(message) {
+    document.body.innerHTML =
+      '<main style="min-height:100vh;display:grid;place-items:center;padding:2rem;background:#0a0a0a;color:#fff;font-family:system-ui,sans-serif;text-align:center;">' +
+      '<div><h1 style="color:#e50914;font-size:1.5rem;margin:0 0 1rem;">Nethraflix could not start</h1>' +
+      '<p style="color:#b3b3b3;max-width:40ch;margin:0 auto 1rem;">' +
+      message +
+      '</p><p style="color:#808080;font-size:0.9rem;">Open via GitHub Pages or run <code>./preview.command</code> — do not double-click index.html.</p></div></main>';
   }
 
-  init();
+  function init() {
+    if (typeof CATALOG === 'undefined') {
+      showBootError('Site data failed to load. Check that js/catalog.js is available.');
+      return;
+    }
+
+    try {
+      buildShowLookup();
+      renderProfiles();
+      renderHero();
+      renderRows();
+      bindEvents();
+    } catch (error) {
+      console.error(error);
+      showBootError(error.message || 'Something went wrong while loading the site.');
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })();

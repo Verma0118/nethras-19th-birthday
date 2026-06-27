@@ -1,55 +1,83 @@
 (function () {
   const PLACEHOLDER_CLASSES = [
-    'poster--rose',
-    'poster--wine',
-    'poster--ember',
-    'poster--plum',
-    'poster--night',
-    'poster--dusk',
-    'poster--mauve',
-    'poster--crimson',
+    'poster--rose', 'poster--wine', 'poster--ember', 'poster--plum',
+    'poster--night', 'poster--dusk', 'poster--mauve', 'poster--crimson',
   ];
 
+  const SCENE_DURATION = 4500;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const loader = document.getElementById('loader');
+  const loaderFill = document.getElementById('loader-fill');
+  const loaderStatus = document.getElementById('loader-status');
   const intro = document.getElementById('intro');
   const home = document.getElementById('home');
   const nav = document.querySelector('.nav');
-  const rowsContainer = document.getElementById('rows');
-  const modal = document.getElementById('modal');
-  const letterModal = document.getElementById('letter-modal');
+  const catalogEl = document.getElementById('catalog');
   const liveRegion = document.getElementById('live-region');
 
   const heroBackdrop = document.getElementById('hero-backdrop');
   const heroTitle = document.getElementById('hero-title');
   const heroTagline = document.getElementById('hero-tagline');
   const heroMeta = document.getElementById('hero-meta');
+  const heroSynopsis = document.getElementById('hero-synopsis');
   const heroPlay = document.getElementById('hero-play');
   const heroInfo = document.getElementById('hero-info');
 
-  const modalHero = document.getElementById('modal-hero');
-  const modalTitle = document.getElementById('modal-title');
-  const modalMeta = document.getElementById('modal-meta');
-  const modalCaption = document.getElementById('modal-caption');
+  const player = document.getElementById('player');
+  const playerLayerA = document.getElementById('player-layer-a');
+  const playerLayerB = document.getElementById('player-layer-b');
+  const playerTitle = document.getElementById('player-title');
+  const playerEpisode = document.getElementById('player-episode');
+  const playerCaption = document.getElementById('player-caption');
+  const playerProgressFill = document.getElementById('player-progress-fill');
+  const playerProgress = document.getElementById('player-progress');
+  const playerDots = document.getElementById('player-dots');
+  const playerClose = document.getElementById('player-close');
+  const playerPrev = document.getElementById('player-prev');
+  const playerNext = document.getElementById('player-next');
+  const playerToggle = document.getElementById('player-toggle');
+  const playerTapLeft = document.getElementById('player-tap-left');
+  const playerTapRight = document.getElementById('player-tap-right');
+  const playerBuffer = document.getElementById('player-buffer');
 
+  const infoPanel = document.getElementById('info-panel');
+  const infoPoster = document.getElementById('info-poster');
+  const infoTitle = document.getElementById('info-title');
+  const infoMeta = document.getElementById('info-meta');
+  const infoSynopsis = document.getElementById('info-synopsis');
+  const infoPlay = document.getElementById('info-play');
+
+  const letterModal = document.getElementById('letter-modal');
   const letterTitle = document.getElementById('letter-title');
   const letterBody = document.getElementById('letter-body');
 
   let lastFocus = null;
-  let showLookup = {};
-  let rowObserver = null;
+  let featuredShow = null;
+  let infoShowId = null;
 
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const playerState = {
+    show: null,
+    sceneIndex: 0,
+    activeLayer: 'a',
+    playing: true,
+    timer: null,
+    progressRaf: null,
+    progressStart: 0,
+    transitioning: false,
+  };
 
-  function announce(message) {
+  function announce(msg) {
     liveRegion.textContent = '';
-    window.setTimeout(() => {
-      liveRegion.textContent = message;
-    }, 30);
+    window.setTimeout(() => { liveRegion.textContent = msg; }, 30);
   }
 
   function wait(ms) {
-    return new Promise((resolve) => {
-      window.setTimeout(resolve, reducedMotion ? 0 : ms);
-    });
+    return new Promise((r) => window.setTimeout(r, reducedMotion ? 0 : ms));
+  }
+
+  function getShow(id) {
+    return CATALOG.shows[id];
   }
 
   function placeholderClass(seed) {
@@ -63,300 +91,400 @@
 
   function imageCandidates(src) {
     const base = src.replace(/\.(jpe?g|png|webp|heic)$/i, '');
-    const unique = new Set([src, `${base}.jpg`, `${base}.jpeg`, `${base}.png`, `${base}.webp`]);
-    return Array.from(unique);
+    return [...new Set([src, `${base}.jpg`, `${base}.jpeg`, `${base}.png`, `${base}.webp`])];
   }
 
-  function applyImage(element, src, alt, seed) {
-    const fallbackClass = placeholderClass(seed);
-    element.classList.add(fallbackClass);
-    element.setAttribute('aria-label', alt);
-
+  function loadImage(src) {
     const candidates = imageCandidates(src);
-    let index = 0;
-
-    function tryNext() {
-      if (index >= candidates.length) {
-        element.style.backgroundImage = '';
-        return;
+    return new Promise((resolve) => {
+      let i = 0;
+      function tryNext() {
+        if (i >= candidates.length) {
+          resolve({ ok: false, src: candidates[0] });
+          return;
+        }
+        const img = new Image();
+        img.onload = () => resolve({ ok: true, src: candidates[i] });
+        img.onerror = () => { i += 1; tryNext(); };
+        img.src = candidates[i];
       }
-
-      const img = new Image();
-      img.onload = () => {
-        element.style.backgroundImage = `url("${candidates[index]}")`;
-        element.classList.remove(fallbackClass);
-      };
-      img.onerror = () => {
-        index += 1;
-        tryNext();
-      };
-      img.src = candidates[index];
-    }
-
-    tryNext();
-  }
-
-  function buildShowLookup() {
-    showLookup = { [CATALOG.hero.id]: CATALOG.hero };
-    CATALOG.rows.forEach((row) => {
-      row.shows.forEach((show) => {
-        showLookup[show.id] = show;
-      });
+      tryNext();
     });
   }
 
-  function renderProfiles() {
-    const nethraAvatar = document.getElementById('profile-avatar-nethra');
-    const aaravAvatar = document.getElementById('profile-avatar-aarav');
+  function applyImageToEl(element, src, alt, seed) {
+    const fb = placeholderClass(seed);
+    element.classList.add(fb);
+    element.setAttribute('aria-label', alt || '');
+    loadImage(src).then(({ ok, src: resolved }) => {
+      if (ok) {
+        element.style.backgroundImage = `url("${resolved}")`;
+        element.classList.remove(fb);
+      }
+    });
+  }
 
-    applyImage(
-      nethraAvatar,
+  function preloadShowImages() {
+    const urls = new Set();
+    Object.values(CATALOG.shows).forEach((show) => {
+      if (show.poster) urls.add(show.poster);
+      (show.scenes || []).forEach((s) => urls.add(s.image));
+    });
+    urls.add(CATALOG.profile.avatar);
+    urls.add(CATALOG.lockedProfile.avatar);
+    return Promise.all([...urls].map((u) => loadImage(u)));
+  }
+
+  async function runLoader() {
+    const bar = loader.querySelector('.loader__bar');
+    const messages = CATALOG.loader.messages;
+    let progress = 0;
+    let msgIndex = 0;
+
+    const preload = preloadShowImages();
+    const minTime = wait(reducedMotion ? 400 : 2400);
+    const start = performance.now();
+
+    const tick = () => {
+      const elapsed = performance.now() - start;
+      const target = Math.min(92, (elapsed / 2200) * 92);
+      progress = Math.max(progress, target);
+      loaderFill.style.width = `${progress}%`;
+      bar.setAttribute('aria-valuenow', String(Math.round(progress)));
+
+      const nextMsg = Math.floor(elapsed / 700) % messages.length;
+      if (nextMsg !== msgIndex) {
+        msgIndex = nextMsg;
+        loaderStatus.textContent = messages[msgIndex];
+      }
+
+      if (progress < 92) requestAnimationFrame(tick);
+    };
+
+    if (!reducedMotion) requestAnimationFrame(tick);
+    else loaderFill.style.width = '100%';
+
+    await Promise.all([preload, minTime]);
+    loaderFill.style.width = '100%';
+    bar.setAttribute('aria-valuenow', '100');
+    loaderStatus.textContent = 'Welcome to Nethraflix';
+
+    await wait(reducedMotion ? 200 : 500);
+    loader.classList.add('screen--exit');
+    await wait(reducedMotion ? 0 : 500);
+
+    loader.classList.add('hidden');
+    loader.hidden = true;
+    intro.hidden = false;
+    intro.classList.remove('hidden');
+    intro.classList.add('screen--enter');
+    announce('Choose your profile');
+  }
+
+  function renderProfiles() {
+    applyImageToEl(
+      document.getElementById('profile-avatar-nethra'),
       CATALOG.profile.avatar,
-      `${CATALOG.profile.name}'s profile photo`,
-      'nethra-profile'
+      `${CATALOG.profile.name}'s profile`,
+      'nethra'
     );
-    applyImage(
-      aaravAvatar,
+    applyImageToEl(
+      document.getElementById('profile-avatar-aarav'),
       CATALOG.lockedProfile.avatar,
-      `${CATALOG.lockedProfile.name}'s profile photo`,
-      'aarav-profile'
+      `${CATALOG.lockedProfile.name}'s profile`,
+      'aarav'
     );
   }
 
   function renderHero() {
-    const { hero } = CATALOG;
-    heroTitle.textContent = hero.title;
-    heroTagline.textContent = hero.tagline;
-    heroMeta.textContent = hero.meta;
-    applyImage(heroBackdrop, hero.image, hero.title, hero.id);
+    featuredShow = getShow(CATALOG.hero.showId);
+    heroTitle.textContent = featuredShow.title;
+    heroTagline.textContent = CATALOG.hero.tagline;
+    heroMeta.textContent = CATALOG.hero.meta;
+    heroSynopsis.textContent = featuredShow.synopsis;
+    applyImageToEl(heroBackdrop, featuredShow.poster, featuredShow.title, featuredShow.id);
   }
 
-  function createShowCard(show, index) {
+  function createCard(show) {
     const card = document.createElement('button');
     card.type = 'button';
-    card.className = 'show-card' + (show.isLetter ? ' show-card--letter' : '');
+    card.className = 'tile' + (show.isLetter ? ' tile--letter' : '');
     card.dataset.showId = show.id;
-    card.setAttribute('aria-label', `${show.title}. ${show.caption}`);
-    card.style.transitionDelay = reducedMotion ? '0ms' : `${Math.min(index * 40, 200)}ms`;
+
+    const epCount = show.scenes ? show.scenes.length : 0;
+    const epLabel = show.isLetter ? 'Letter' : `${epCount} Episodes`;
+    card.setAttribute('aria-label', `${show.title}. ${show.synopsis}. ${epLabel}`);
 
     const poster = document.createElement('div');
-    poster.className = 'show-card__poster';
+    poster.className = 'tile__poster';
+    applyImageToEl(poster, show.poster, show.title, show.id);
+
+    const shine = document.createElement('div');
+    shine.className = 'tile__shine';
+    shine.setAttribute('aria-hidden', 'true');
+    poster.appendChild(shine);
 
     if (!show.isLetter) {
-      const overlay = document.createElement('div');
-      overlay.className = 'show-card__overlay';
-      overlay.innerHTML = '<span class="show-card__play" aria-hidden="true">▶</span>';
-      poster.appendChild(overlay);
-    }
-
-    if (show.isLetter) {
+      const play = document.createElement('span');
+      play.className = 'tile__play';
+      play.setAttribute('aria-hidden', 'true');
+      play.innerHTML = '<svg width="22" height="22" viewBox="0 0 14 14" fill="currentColor"><path d="M2 1.5v11l9-5.5z"/></svg>';
+      poster.appendChild(play);
+    } else {
       const icon = document.createElement('span');
-      icon.className = 'show-card__letter-icon';
+      icon.className = 'tile__letter-icon';
       icon.setAttribute('aria-hidden', 'true');
       icon.textContent = '✉';
       poster.appendChild(icon);
-      applyImage(poster, show.image, show.title, show.id);
-    } else {
-      applyImage(poster, show.image, show.title, show.id);
     }
 
-    const label = document.createElement('span');
-    label.className = 'show-card__label';
-    label.textContent = show.title;
+    const body = document.createElement('div');
+    body.className = 'tile__body';
+    body.innerHTML =
+      `<span class="tile__meta">${show.meta}</span>` +
+      `<span class="tile__title">${show.title}</span>` +
+      `<span class="tile__episodes">${epLabel}</span>`;
 
     card.appendChild(poster);
-    card.appendChild(label);
+    card.appendChild(body);
 
     card.addEventListener('click', () => {
-      if (show.isLetter) {
-        openLetter();
-      } else {
-        openShow(show.id);
-      }
+      if (show.isLetter) openLetter();
+      else openPlayer(show.id);
     });
 
     return card;
   }
 
-  function setupRowControls(track) {
-    const prev = document.createElement('button');
-    prev.type = 'button';
-    prev.className = 'row__arrow row__arrow--prev';
-    prev.setAttribute('aria-label', 'Scroll left');
-    prev.textContent = '‹';
-
-    const next = document.createElement('button');
-    next.type = 'button';
-    next.className = 'row__arrow row__arrow--next';
-    next.setAttribute('aria-label', 'Scroll right');
-    next.textContent = '›';
-
-    function updateArrows() {
-      const maxScroll = track.scrollWidth - track.clientWidth;
-      prev.disabled = track.scrollLeft <= 4;
-      next.disabled = track.scrollLeft >= maxScroll - 4;
-    }
-
-    prev.addEventListener('click', () => {
-      track.scrollBy({ left: -track.clientWidth * 0.75, behavior: reducedMotion ? 'auto' : 'smooth' });
-    });
-
-    next.addEventListener('click', () => {
-      track.scrollBy({ left: track.clientWidth * 0.75, behavior: reducedMotion ? 'auto' : 'smooth' });
-    });
-
-    track.addEventListener('scroll', updateArrows, { passive: true });
-    window.setTimeout(updateArrows, 100);
-
-    return { prev, next };
-  }
-
-  function renderRows() {
-    rowsContainer.innerHTML = '';
-
+  function renderCatalog() {
+    catalogEl.innerHTML = '';
     CATALOG.rows.forEach((row, rowIndex) => {
       const section = document.createElement('section');
-      section.className = 'row';
-      section.setAttribute('aria-labelledby', `row-${row.id}`);
-      section.dataset.rowIndex = String(rowIndex);
-
-      const header = document.createElement('div');
-      header.className = 'row__header';
+      section.className = 'catalog__row';
+      section.style.setProperty('--row-delay', `${rowIndex * 100}ms`);
+      section.setAttribute('aria-labelledby', `catalog-${row.id}`);
 
       const heading = document.createElement('h2');
-      heading.id = `row-${row.id}`;
-      heading.className = 'row__title';
+      heading.id = `catalog-${row.id}`;
+      heading.className = 'catalog__heading';
       heading.textContent = row.title;
 
-      const controls = document.createElement('div');
-      controls.className = 'row__controls';
+      const grid = document.createElement('div');
+      grid.className = 'catalog__grid';
+      grid.setAttribute('role', 'list');
 
-      const wrap = document.createElement('div');
-      wrap.className = 'row__track-wrap';
-
-      const track = document.createElement('div');
-      track.className = 'row__track';
-      track.setAttribute('role', 'list');
-
-      row.shows.forEach((show, index) => {
-        const card = createShowCard(show, index);
+      row.shows.forEach((showId) => {
+        const show = getShow(showId);
+        const card = createCard(show);
         card.setAttribute('role', 'listitem');
-        track.appendChild(card);
+        grid.appendChild(card);
       });
 
-      const arrows = setupRowControls(track);
-      controls.appendChild(arrows.prev);
-      controls.appendChild(arrows.next);
-
-      header.appendChild(heading);
-      header.appendChild(controls);
-      wrap.appendChild(track);
-      section.appendChild(header);
-      section.appendChild(wrap);
-      rowsContainer.appendChild(section);
+      section.appendChild(heading);
+      section.appendChild(grid);
+      catalogEl.appendChild(section);
     });
   }
 
-  function setupRowObserver() {
-    if (reducedMotion || !('IntersectionObserver' in window)) {
-      document.querySelectorAll('.row').forEach((row) => row.classList.add('row--visible'));
-      return;
+  function stopPlayerTimer() {
+    if (playerState.timer) {
+      clearTimeout(playerState.timer);
+      playerState.timer = null;
     }
-
-    rowObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const row = entry.target;
-            const index = Number(row.dataset.rowIndex || 0);
-            window.setTimeout(() => {
-              row.classList.add('row--visible');
-            }, index * 80);
-            rowObserver.unobserve(row);
-          }
-        });
-      },
-      { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
-    );
-
-    document.querySelectorAll('.row').forEach((row) => rowObserver.observe(row));
-  }
-
-  function setupNavScroll() {
-    if (!nav) return;
-
-    function onScroll() {
-      nav.classList.toggle('nav--scrolled', window.scrollY > 40);
-    }
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-  }
-
-  function getFocusable(container) {
-    return Array.from(
-      container.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      )
-    ).filter((el) => !el.hasAttribute('disabled') && el.offsetParent !== null);
-  }
-
-  function trapFocus(container, event) {
-    const focusable = getFocusable(container);
-    if (!focusable.length) return;
-
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
+    if (playerState.progressRaf) {
+      cancelAnimationFrame(playerState.progressRaf);
+      playerState.progressRaf = null;
     }
   }
 
-  async function openModalElement(element, onReady) {
-    element.hidden = false;
-    element.classList.remove('hidden');
-    document.body.classList.add('modal-open');
-    onReady();
-    await wait(20);
-    element.classList.add('modal--open');
+  function updateProgressUI() {
+    const total = playerState.show.scenes.length;
+    const pct = ((playerState.sceneIndex + 1) / total) * 100;
+    playerProgressFill.style.width = `${pct}%`;
+    playerProgress.setAttribute('aria-valuenow', String(Math.round(pct)));
+    playerEpisode.textContent = `Episode ${playerState.sceneIndex + 1} of ${total}`;
+
+    playerDots.innerHTML = '';
+    playerState.show.scenes.forEach((_, i) => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'player__dot' + (i === playerState.sceneIndex ? ' is-active' : '');
+      dot.setAttribute('aria-label', `Go to episode ${i + 1}`);
+      dot.addEventListener('click', () => goToScene(i));
+      playerDots.appendChild(dot);
+    });
   }
 
-  async function closeModalElement(element) {
-    element.classList.remove('modal--open');
-    await wait(reducedMotion ? 0 : 320);
-    element.classList.add('hidden');
-    element.hidden = true;
-    document.body.classList.remove('modal-open');
+  function animateProgressBar() {
+    if (!playerState.playing || reducedMotion) return;
+    const duration = SCENE_DURATION;
+    playerState.progressStart = performance.now();
+
+    const step = (now) => {
+      if (!playerState.playing) return;
+      const elapsed = now - playerState.progressStart;
+      const scenePct = Math.min(elapsed / duration, 1);
+      const total = playerState.show.scenes.length;
+      const base = (playerState.sceneIndex / total) * 100;
+      const slice = (1 / total) * 100;
+      playerProgressFill.style.width = `${base + scenePct * slice}%`;
+      if (scenePct < 1) playerState.progressRaf = requestAnimationFrame(step);
+    };
+    playerState.progressRaf = requestAnimationFrame(step);
   }
 
-  function openShow(id) {
-    const show = showLookup[id];
-    if (!show || show.isLetter) return;
+  async function setPlayerScene(index, direction) {
+    if (!playerState.show || playerState.transitioning) return;
+    const scenes = playerState.show.scenes;
+    if (index < 0 || index >= scenes.length) return;
+
+    playerState.transitioning = true;
+    stopPlayerTimer();
+    playerBuffer.classList.add('is-visible');
+
+    const scene = scenes[index];
+    const result = await loadImage(scene.image);
+
+    const incoming = playerState.activeLayer === 'a' ? playerLayerB : playerLayerA;
+    const outgoing = playerState.activeLayer === 'a' ? playerLayerA : playerLayerB;
+
+    incoming.className = `player__layer player__layer--${playerState.activeLayer === 'a' ? 'b' : 'a'}`;
+    incoming.classList.remove('is-active', 'is-exit', 'slide-left', 'slide-right');
+
+    if (result.ok) {
+      incoming.style.backgroundImage = `url("${result.src}")`;
+      incoming.classList.remove(...PLACEHOLDER_CLASSES);
+    } else {
+      incoming.style.backgroundImage = '';
+      incoming.className += ' ' + placeholderClass(`${playerState.show.id}-${index}`);
+    }
+    incoming.setAttribute('aria-label', scene.caption);
+
+    if (!reducedMotion && direction) {
+      incoming.classList.add(direction > 0 ? 'slide-right' : 'slide-left');
+    }
+
+    playerCaption.classList.remove('is-visible');
+    await wait(reducedMotion ? 0 : 80);
+
+    incoming.classList.add('is-active');
+    outgoing.classList.remove('is-active');
+    outgoing.classList.add('is-exit');
+
+    playerState.sceneIndex = index;
+    playerState.activeLayer = playerState.activeLayer === 'a' ? 'b' : 'a';
+    playerCaption.textContent = scene.caption;
+    updateProgressUI();
+
+    await wait(reducedMotion ? 0 : 520);
+    playerCaption.classList.add('is-visible');
+    playerBuffer.classList.remove('is-visible');
+    playerState.transitioning = false;
+
+    if (playerState.playing) scheduleNextScene();
+    else animateProgressBar();
+  }
+
+  function scheduleNextScene() {
+    stopPlayerTimer();
+    if (!playerState.playing) return;
+    animateProgressBar();
+    playerState.timer = window.setTimeout(() => {
+      const next = playerState.sceneIndex + 1;
+      if (next < playerState.show.scenes.length) setPlayerScene(next, 1);
+      else setPlayerScene(0, 1);
+    }, reducedMotion ? 8000 : SCENE_DURATION);
+  }
+
+  function goToScene(index) {
+    const dir = index > playerState.sceneIndex ? 1 : -1;
+    setPlayerScene(index, dir);
+  }
+
+  function nextScene() {
+    const next = (playerState.sceneIndex + 1) % playerState.show.scenes.length;
+    setPlayerScene(next, 1);
+  }
+
+  function prevScene() {
+    const prev = (playerState.sceneIndex - 1 + playerState.show.scenes.length) % playerState.show.scenes.length;
+    setPlayerScene(prev, -1);
+  }
+
+  function togglePlay() {
+    playerState.playing = !playerState.playing;
+    playerToggle.setAttribute('aria-label', playerState.playing ? 'Pause slideshow' : 'Play slideshow');
+    playerToggle.querySelector('.player__pause-icon').classList.toggle('hidden', !playerState.playing);
+    playerToggle.querySelector('.player__play-icon').classList.toggle('hidden', playerState.playing);
+    if (playerState.playing) scheduleNextScene();
+    else stopPlayerTimer();
+  }
+
+  async function openPlayer(showId) {
+    const show = getShow(showId);
+    if (!show || show.isLetter || !show.scenes.length) return;
 
     lastFocus = document.activeElement;
-    modalTitle.textContent = show.title;
-    modalMeta.textContent = show.meta;
-    modalCaption.textContent = show.caption;
-    modalHero.style.backgroundImage = '';
-    modalHero.className = 'modal__hero ' + placeholderClass(show.id);
-    applyImage(modalHero, show.image, show.title, show.id);
+    playerState.show = show;
+    playerState.sceneIndex = 0;
+    playerState.activeLayer = 'a';
+    playerState.playing = !reducedMotion;
 
-    openModalElement(modal, () => announce(`Opened ${show.title}`));
+    playerTitle.textContent = show.title;
+    playerToggle.querySelector('.player__pause-icon').classList.toggle('hidden', !playerState.playing);
+    playerToggle.querySelector('.player__play-icon').classList.toggle('hidden', playerState.playing);
 
-    const closeBtn = modal.querySelector('.modal__close');
-    window.setTimeout(() => closeBtn.focus(), 80);
+    player.hidden = false;
+    player.classList.remove('hidden');
+    document.body.classList.add('player-open');
+    await wait(20);
+    player.classList.add('player--open');
+
+    playerLayerA.className = 'player__layer player__layer--a';
+    playerLayerB.className = 'player__layer player__layer--b';
+    await setPlayerScene(0, 0);
+    if (playerState.playing) scheduleNextScene();
+    announce(`Now playing ${show.title}`);
+    playerClose.focus();
   }
 
-  function closeShow() {
-    closeModalElement(modal).then(() => {
+  async function closePlayer() {
+    stopPlayerTimer();
+    playerState.show = null;
+    player.classList.remove('player--open');
+    await wait(reducedMotion ? 0 : 400);
+    player.classList.add('hidden');
+    player.hidden = true;
+    document.body.classList.remove('player-open');
+    if (lastFocus) lastFocus.focus();
+    announce('Back to browse');
+  }
+
+  function openInfo(showId) {
+    const show = getShow(showId);
+    if (!show || show.isLetter) return;
+    infoShowId = showId;
+    lastFocus = document.activeElement;
+    infoTitle.textContent = show.title;
+    infoMeta.textContent = show.meta;
+    infoSynopsis.textContent = show.synopsis;
+    applyImageToEl(infoPoster, show.poster, show.title, show.id);
+    infoPanel.hidden = false;
+    infoPanel.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+    window.setTimeout(() => infoPanel.classList.add('info-panel--open'), 20);
+    announce(`More info for ${show.title}`);
+    infoPanel.querySelector('.info-panel__close').focus();
+  }
+
+  function closeInfo() {
+    infoPanel.classList.remove('info-panel--open');
+    window.setTimeout(() => {
+      infoPanel.classList.add('hidden');
+      infoPanel.hidden = true;
+      document.body.classList.remove('modal-open');
       if (lastFocus) lastFocus.focus();
-      announce('Closed memory details');
-    });
+    }, reducedMotion ? 0 : 320);
   }
 
   function openLetter() {
@@ -365,97 +493,102 @@
     letterBody.innerHTML = CATALOG.letter.body
       .map((line) => (line ? `<p>${escapeHtml(line)}</p>` : '<p aria-hidden="true">&nbsp;</p>'))
       .join('');
-
-    openModalElement(letterModal, () => announce('Opened birthday letter'));
-
-    const closeBtn = letterModal.querySelector('.modal__close');
-    window.setTimeout(() => closeBtn.focus(), 80);
+    letterModal.hidden = false;
+    letterModal.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+    window.setTimeout(() => letterModal.classList.add('letter-modal--open'), 20);
+    announce('Opened birthday letter');
+    letterModal.querySelector('.letter-modal__close').focus();
   }
 
   function closeLetter() {
-    closeModalElement(letterModal).then(() => {
+    letterModal.classList.remove('letter-modal--open');
+    window.setTimeout(() => {
+      letterModal.classList.add('hidden');
+      letterModal.hidden = true;
+      document.body.classList.remove('modal-open');
       if (lastFocus) lastFocus.focus();
-      announce('Closed birthday letter');
-    });
+    }, reducedMotion ? 0 : 320);
   }
 
-  function escapeHtml(text) {
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+  function escapeHtml(t) {
+    return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
   async function enterHome() {
-    const profileBtn = document.querySelector('[data-profile="nethra"]');
-    profileBtn.disabled = true;
-    profileBtn.classList.add('profile--entering');
+    const btn = document.querySelector('[data-profile="nethra"]');
+    btn.disabled = true;
+    btn.classList.add('profile--entering');
     intro.classList.add('screen--exit');
-
-    await wait(650);
+    await wait(reducedMotion ? 0 : 650);
 
     intro.classList.add('hidden');
     intro.hidden = true;
     home.hidden = false;
     home.classList.remove('hidden');
     home.classList.add('screen--enter');
-
+    catalogEl.classList.add('catalog--visible');
     announce(`Welcome to ${CATALOG.brand}`);
-    setupRowObserver();
-    window.setTimeout(() => heroPlay.focus(), 400);
+    window.setTimeout(() => heroPlay.focus(), 300);
+  }
+
+  function setupNavScroll() {
+    if (!nav) return;
+    const onScroll = () => nav.classList.toggle('nav--scrolled', window.scrollY > 40);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
   }
 
   function bindEvents() {
     document.querySelector('[data-profile="nethra"]').addEventListener('click', enterHome);
+    heroPlay.addEventListener('click', () => openPlayer(CATALOG.hero.showId));
+    heroInfo.addEventListener('click', () => openInfo(CATALOG.hero.showId));
+    infoPlay.addEventListener('click', () => { closeInfo(); openPlayer(infoShowId); });
+    infoPanel.querySelectorAll('[data-close-info]').forEach((el) => el.addEventListener('click', closeInfo));
+    letterModal.querySelectorAll('[data-close-letter]').forEach((el) => el.addEventListener('click', closeLetter));
 
-    heroPlay.addEventListener('click', () => openShow(CATALOG.hero.id));
-    heroInfo.addEventListener('click', () => openShow(CATALOG.hero.id));
+    playerClose.addEventListener('click', closePlayer);
+    playerPrev.addEventListener('click', prevScene);
+    playerNext.addEventListener('click', nextScene);
+    playerToggle.addEventListener('click', togglePlay);
+    playerTapLeft.addEventListener('click', prevScene);
+    playerTapRight.addEventListener('click', nextScene);
 
-    modal.querySelectorAll('[data-close]').forEach((el) => {
-      el.addEventListener('click', closeShow);
-    });
-
-    letterModal.querySelectorAll('[data-close-letter]').forEach((el) => {
-      el.addEventListener('click', closeLetter);
-    });
-
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') {
-        if (!modal.hidden) closeShow();
-        if (!letterModal.hidden) closeLetter();
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (!player.hidden) closePlayer();
+        else if (!infoPanel.hidden) closeInfo();
+        else if (!letterModal.hidden) closeLetter();
       }
-
-      if (!modal.hidden && event.key === 'Tab') trapFocus(modal, event);
-      if (!letterModal.hidden && event.key === 'Tab') trapFocus(letterModal, event);
+      if (!player.hidden) {
+        if (e.key === 'ArrowRight') nextScene();
+        if (e.key === 'ArrowLeft') prevScene();
+        if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+      }
     });
   }
 
   function showBootError(message) {
     document.body.innerHTML =
-      '<main style="min-height:100vh;display:grid;place-items:center;padding:2rem;background:#0a0a0a;color:#fff;font-family:system-ui,sans-serif;text-align:center;">' +
-      '<div><h1 style="color:#e50914;font-size:1.5rem;margin:0 0 1rem;">Nethraflix could not start</h1>' +
-      '<p style="color:#b3b3b3;max-width:40ch;margin:0 auto 1rem;">' +
-      message +
-      '</p><p style="color:#808080;font-size:0.9rem;">Open via GitHub Pages or run <code>./preview.command</code> — do not double-click index.html.</p></div></main>';
+      '<main style="min-height:100vh;display:grid;place-items:center;padding:2rem;background:#0a0a0a;color:#fff;font-family:system-ui,sans-serif;text-align:center">' +
+      `<div><h1 style="color:#e50914">Nethraflix could not start</h1><p style="color:#b3b3b3">${message}</p></div></main>`;
   }
 
-  function init() {
+  async function init() {
     if (typeof CATALOG === 'undefined') {
-      showBootError('Site data failed to load. Check that js/catalog.js is available.');
+      showBootError('Site data failed to load.');
       return;
     }
-
     try {
-      buildShowLookup();
       renderProfiles();
       renderHero();
-      renderRows();
+      renderCatalog();
       bindEvents();
       setupNavScroll();
-    } catch (error) {
-      console.error(error);
-      showBootError(error.message || 'Something went wrong while loading the site.');
+      await runLoader();
+    } catch (err) {
+      console.error(err);
+      showBootError(err.message || 'Something went wrong.');
     }
   }
 

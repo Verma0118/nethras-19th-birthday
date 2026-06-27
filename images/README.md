@@ -1,47 +1,44 @@
 # Adding Your Photos
 
-Drop your photos into these folders using the exact filenames below. Until a file exists, the site shows a colored placeholder — so you can preview the layout first, then swap in real images.
+**10 photos total** — each "movie" has 2 episodes (scenes) that cycle when she hits Play.
 
-## Required first
+## Required
 
 | File | Used for |
 |------|----------|
-| `profile.jpg` | Nethra's "Who's watching?" avatar |
-| `hero.jpg` | Big banner at the top of the home screen |
-| `aarav.jpg` | (Optional) Aarav's locked profile avatar |
-| `letter-cover.jpg` | Cover for the "A Letter For You" card |
+| `profile.jpg` | Nethra's profile on "Who's watching?" |
+| `aarav.jpg` | (Optional) Your locked profile |
+| `letter-cover.jpg` | Cover for the letter card |
 
-## Row folders
+## Show photos (2 per movie)
 
-Each row has 5 slots. Name files `01.jpg` through `05.jpg`:
+Drop pairs into `images/shows/`:
 
-- `greatest-hits/` — Our Greatest Hits
-- `date-nights/` — Date Nights
-- `travel/` — Travel & Adventures
-- `favorites/` — My Favorite Photos of You
-- `why-i-love-you/` — Why I Love You (first 4 cards; 5th is the letter)
+| Show | Files |
+|------|-------|
+| Us: The Series | `01-a.jpg`, `01-b.jpg` |
+| First Adventures | `02-a.jpg`, `02-b.jpg` |
+| That Smile | `03-a.jpg`, `03-b.jpg` |
+| Golden Hour | `04-a.jpg`, `04-b.jpg` |
+| Why I Love You | `05-a.jpg`, `05-b.jpg` |
 
-## Editing captions & titles
+When she taps **Play**, each movie cycles through its 2 photos with captions.
 
-Open `js/catalog.js` and edit the `title`, `caption`, and `meta` fields for each show. The letter text is at the bottom in `letter.body`.
+## Editing text
+
+Open `js/catalog.js`:
+- `hero.tagline` and `hero.meta` — banner text (meta says **6 Months**)
+- Each show's `title`, `synopsis`, `meta`
+- Each scene's `caption`
+- `letter.body` — the birthday letter
 
 ## Tips
 
-- **iPhone photos:** Export as **JPG** first — HEIC files will not show in browsers (Photos → Share → Save as JPG, or AirDrop to Mac and export)
-- **Format:** `.jpg`, `.jpeg`, or `.png` all work (the site tries each automatically)
-- **Names:** Must match exactly — `01.jpg` not `1.jpg` or `IMG_1234.jpg`
-- **Size:** 1200px wide is plenty — GitHub Pages serves them as-is
-- **Aspect ratio:** Portrait photos look best on the cards (Netflix poster style)
-- **Hero:** Landscape/wide photos work best for the banner
+- **iPhone photos:** Export as **JPG** first — HEIC won't work in browsers
+- **Format:** `.jpg`, `.jpeg`, or `.png` all work
+- **Names:** Must match exactly (`01-a.jpg` not `IMG_1234.jpg`)
+- **Best look:** Landscape for movie tiles, portrait works too
 
-## Preview locally
+## Preview
 
-Double-click **`preview.command`** in the project folder (Mac), or run:
-
-```bash
-cd ~/Birthday_Present_2026
-chmod +x preview.command
-./preview.command
-```
-
-Do **not** open `index.html` directly from Finder — use the preview script or the live link instead.
+Double-click `preview.command` or visit the [live site](https://verma0118.github.io/nethras-19th-birthday/).

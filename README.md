@@ -1,27 +1,25 @@
 # Nethraflix
 
-A Netflix-style birthday gift for Nethra's 19th — photos, captions, and a letter, hosted on GitHub Pages.
+A cinematic birthday gift for Nethra — Netflix-style, with 5 movies, 10 photos, and a letter.
 
-**Live site:** [verma0118.github.io/nethras-19th-birthday](https://verma0118.github.io/nethras-19th-birthday/)
+**Live:** [verma0118.github.io/nethras-19th-birthday](https://verma0118.github.io/nethras-19th-birthday/)
 
-## Quick start
+## Experience flow
 
-1. Add photos — see [`images/README.md`](images/README.md) for filenames and folders
-2. Edit captions and titles in [`js/catalog.js`](js/catalog.js)
-3. Push to `main` — GitHub Pages updates automatically
+1. **Loading screen** — Nethraflix boot animation
+2. **Who's watching?** — tap Nethra's profile
+3. **Home** — featured hero + 5 movie tiles (not 25 boxes)
+4. **Player** — tap Play → fullscreen slideshow cycling through each movie's photos
+5. **Letter** — final card opens your birthday message
 
-## Local preview
+## Add your photos
+
+See [`images/README.md`](images/README.md) — 10 photos as `01-a.jpg` through `05-b.jpg`, plus profile + letter cover.
+
+Edit captions in [`js/catalog.js`](js/catalog.js).
+
+## Preview locally
 
 ```bash
-python3 -m http.server 8080
+./preview.command
 ```
-
-Open [http://localhost:8080](http://localhost:8080)
-
-## Structure
-
-- `index.html` — page shell
-- `css/styles.css` — Nethraflix styling
-- `js/catalog.js` — all content (photos, captions, letter)
-- `js/app.js` — interactions and modals
-- `images/` — your photos

@@ -27,7 +27,7 @@ const CATALOG = {
     {
       id: 'favorites',
       title: 'My Favorite Photos of You',
-      shows: ['that-smile', 'golden-hour'],
+      shows: ['that-smile', 'facetime-favorites'],
     },
     {
       id: 'for-you',
@@ -88,20 +88,65 @@ const CATALOG = {
         },
       ],
     },
-    'golden-hour': {
-      id: 'golden-hour',
-      title: 'Golden Hour',
-      meta: 'Aesthetic, ★★★★★, 2 Episodes',
-      synopsis: 'Light hits you different. So does everything else.',
-      poster: 'images/shows/04-a.jpg',
+    'facetime-favorites': {
+      id: 'facetime-favorites',
+      title: 'FaceTime Favorites',
+      meta: 'FaceTime, Romance, ★★★★★, 13 Episodes',
+      synopsis: 'Every call, every screenshot, every time your face lit up my screen.',
+      poster: 'images/shows/facetime/01.jpg',
+      loop: false,
       scenes: [
         {
-          image: 'images/shows/04-a.jpg',
-          caption: 'Golden hour, but you were the glow.',
+          image: 'images/shows/facetime/01.jpg',
+          caption: 'This smile is why I never let a call go to voicemail.',
         },
         {
-          image: 'images/shows/04-b.jpg',
-          caption: 'This photo lives in my head rent free.',
+          image: 'images/shows/facetime/02.jpg',
+          caption: 'Yes, I looked like this on FaceTime. No, I don\'t regret it.',
+        },
+        {
+          image: 'images/shows/facetime/03.jpg',
+          caption: 'My favorite face to see on my screen.',
+        },
+        {
+          image: 'images/shows/facetime/04.jpg',
+          caption: 'The pout that somehow made me fall harder.',
+        },
+        {
+          image: 'images/shows/facetime/05.jpg',
+          caption: 'You have no idea how cute you are when you do this.',
+        },
+        {
+          image: 'images/shows/facetime/06.jpg',
+          caption: 'Caught you being perfectly you.',
+        },
+        {
+          image: 'images/shows/facetime/07.jpg',
+          caption: 'Nobody makes me laugh on a call like you do.',
+        },
+        {
+          image: 'images/shows/facetime/08.jpg',
+          caption: 'I screenshot moments like this and keep them forever.',
+        },
+        {
+          image: 'images/shows/facetime/09.jpg',
+          caption: 'Late night calls I never wanted to hang up on.',
+        },
+        {
+          image: 'images/shows/facetime/10.jpg',
+          caption: 'Cozy calls that made the distance feel smaller.',
+        },
+        {
+          image: 'images/shows/facetime/11.jpg',
+          caption: 'Even half your face is my whole favorite view.',
+        },
+        {
+          image: 'images/shows/facetime/12.jpg',
+          caption: 'Blurry, chaotic, perfect. Just like us.',
+        },
+        {
+          image: 'images/shows/facetime/13.jpg',
+          caption: 'Six months of calls, and I\'d answer every single one again.',
         },
       ],
     },
@@ -150,10 +195,11 @@ const CATALOG = {
 
   loader: {
     messages: [
-      'Loading your memories...',
-      'Preparing something special...',
-      'Setting the scene...',
-      'Almost ready...',
+      'Gathering your cutest memories...',
+      'Sprinkling a little magic...',
+      'Getting everything just right...',
+      'Almost ready for you, Nethra...',
     ],
+    welcome: 'Welcome to Nethraflix ♥',
   },
 };

@@ -28,15 +28,46 @@
 
   <!-- Boot loader -->
   <section id="loader" class="screen screen--loader" aria-label="Loading Nethraflix" aria-live="polite">
+    <div class="loader__sky" aria-hidden="true">
+      <span class="loader__heart" style="--i:0">♥</span>
+      <span class="loader__heart" style="--i:1">♥</span>
+      <span class="loader__heart" style="--i:2">♥</span>
+      <span class="loader__heart" style="--i:3">♥</span>
+      <span class="loader__heart" style="--i:4">♥</span>
+      <span class="loader__spark" style="--i:0">✦</span>
+      <span class="loader__spark" style="--i:1">✦</span>
+      <span class="loader__spark" style="--i:2">✦</span>
+    </div>
     <div class="loader__glow" aria-hidden="true"></div>
-    <div class="loader__brand">
-      <span class="loader__n">N</span>
-      <div class="loader__wordmark">NETHRAFLIX</div>
+
+    <div class="loader__content">
+      <div class="loader__peek" id="loader-peek" aria-hidden="true">
+        <span class="loader__peek-ring"></span>
+        <img class="loader__peek-img" id="loader-peek-img" src="" alt="">
+      </div>
+
+      <div class="loader__brand">
+        <span class="loader__n">N</span>
+        <div class="loader__wordmark">NETHRAFLIX</div>
+      </div>
+
+      <p class="loader__tagline">made with love, just for you</p>
+
+      <div class="loader__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Loading progress">
+        <div class="loader__bar-shine" aria-hidden="true"></div>
+        <div class="loader__bar-fill" id="loader-fill"></div>
+      </div>
+
+      <p class="loader__status" id="loader-status">
+        <span id="loader-status-text">Loading your memories...</span>
+      </p>
+
+      <div class="loader__dots" aria-hidden="true">
+        <span class="loader__dot-bounce"></span>
+        <span class="loader__dot-bounce"></span>
+        <span class="loader__dot-bounce"></span>
+      </div>
     </div>
-    <div class="loader__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Loading progress">
-      <div class="loader__bar-fill" id="loader-fill"></div>
-    </div>
-    <p class="loader__status" id="loader-status"><span id="loader-status-text">Loading your memories...</span></p>
   </section>
 
   <!-- Who's watching? -->

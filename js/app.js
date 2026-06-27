@@ -11,6 +11,7 @@
   const loaderFill = document.getElementById('loader-fill');
   const loaderStatus = document.getElementById('loader-status');
   const loaderStatusText = document.getElementById('loader-status-text');
+  const loaderPeekImg = document.getElementById('loader-peek-img');
   const intro = document.getElementById('intro');
   const home = document.getElementById('home');
   const nav = document.querySelector('.nav');
@@ -218,23 +219,29 @@
   async function runLoader() {
     const bar = loader.querySelector('.loader__bar');
     const messages = CATALOG.loader.messages;
+
+    if (loaderPeekImg && CATALOG.profile?.avatar) {
+      loaderPeekImg.src = resolveAssetPath(CATALOG.profile.avatar);
+      loaderPeekImg.alt = '';
+    }
+
     let progress = 0;
     let displayProgress = 0;
     let msgIndex = 0;
 
     const preload = preloadShowImages();
-    const minTime = wait(reducedMotion ? 400 : 2800);
+    const minTime = wait(reducedMotion ? 400 : 3200);
     const start = performance.now();
 
     const tick = (now) => {
       const elapsed = now - start;
-      const target = Math.min(96, (elapsed / 2600) * 96);
+      const target = Math.min(96, (elapsed / 2800) * 96);
       progress = Math.max(progress, target);
-      displayProgress = lerp(displayProgress, progress, 0.12);
+      displayProgress = lerp(displayProgress, progress, 0.1);
       loaderFill.style.width = `${displayProgress}%`;
       bar.setAttribute('aria-valuenow', String(Math.round(displayProgress)));
 
-      const nextMsg = Math.min(messages.length - 1, Math.floor(elapsed / 750));
+      const nextMsg = Math.min(messages.length - 1, Math.floor(elapsed / 800));
       if (nextMsg !== msgIndex) {
         msgIndex = nextMsg;
         setLoaderStatus(messages[msgIndex]);
@@ -249,11 +256,12 @@
     await Promise.all([preload, minTime]);
     loaderFill.style.width = '100%';
     bar.setAttribute('aria-valuenow', '100');
-    setLoaderStatus('Welcome to Nethraflix');
+    setLoaderStatus(CATALOG.loader.welcome || 'Welcome to Nethraflix');
+    loader.classList.add('screen--complete');
 
-    await wait(reducedMotion ? 200 : 600);
+    await wait(reducedMotion ? 200 : 800);
     loader.classList.add('screen--exit');
-    await wait(reducedMotion ? 0 : 550);
+    await wait(reducedMotion ? 0 : 600);
 
     loader.classList.add('hidden');
     loader.hidden = true;
@@ -480,6 +488,14 @@
     else animateProgressBar();
   }
 
+  function pausePlayer() {
+    playerState.playing = false;
+    playerToggle.setAttribute('aria-label', 'Play slideshow');
+    playerToggle.querySelector('.player__pause-icon').classList.add('hidden');
+    playerToggle.querySelector('.player__play-icon').classList.remove('hidden');
+    stopPlayerTimer();
+  }
+
   function scheduleNextScene() {
     stopPlayerTimer();
     if (!playerState.playing) return;
@@ -487,7 +503,8 @@
     playerState.timer = window.setTimeout(() => {
       const next = playerState.sceneIndex + 1;
       if (next < playerState.show.scenes.length) setPlayerScene(next, 1);
-      else setPlayerScene(0, 1);
+      else if (playerState.show.loop !== false) setPlayerScene(0, 1);
+      else pausePlayer();
     }, reducedMotion ? 8000 : SCENE_DURATION);
   }
 

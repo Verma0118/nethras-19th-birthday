@@ -4,12 +4,13 @@
     'poster--night', 'poster--dusk', 'poster--mauve', 'poster--crimson',
   ];
 
-  const SCENE_DURATION = 4500;
+  const SCENE_DURATION = 5000;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const loader = document.getElementById('loader');
   const loaderFill = document.getElementById('loader-fill');
   const loaderStatus = document.getElementById('loader-status');
+  const loaderStatusText = document.getElementById('loader-status-text');
   const intro = document.getElementById('intro');
   const home = document.getElementById('home');
   const nav = document.querySelector('.nav');
@@ -40,6 +41,7 @@
   const playerTapLeft = document.getElementById('player-tap-left');
   const playerTapRight = document.getElementById('player-tap-right');
   const playerBuffer = document.getElementById('player-buffer');
+  const playerChrome = document.getElementById('player-chrome');
 
   const infoPanel = document.getElementById('info-panel');
   const infoPoster = document.getElementById('info-poster');
@@ -55,6 +57,9 @@
   let lastFocus = null;
   let featuredShow = null;
   let infoShowId = null;
+  let chromeHideTimer = null;
+  let tileIndex = 0;
+  const imageCache = new Map();
 
   const playerState = {
     show: null,
@@ -76,6 +81,41 @@
     return new Promise((r) => window.setTimeout(r, reducedMotion ? 0 : ms));
   }
 
+  function lerp(a, b, t) {
+    return a + (b - a) * t;
+  }
+
+  function setLoaderStatus(text) {
+    if (!loaderStatusText) return;
+    loaderStatusText.classList.add('is-changing');
+    window.setTimeout(() => {
+      loaderStatusText.textContent = text;
+      loaderStatusText.classList.remove('is-changing');
+    }, reducedMotion ? 0 : 180);
+  }
+
+  function getLayerBg(layer) {
+    return layer.querySelector('.player__layer-bg');
+  }
+
+  function applyBgToLayer(layer, src, seed) {
+    applyBgToLayerSync(layer, src, seed);
+  }
+
+  async function applyBgToLayerSync(layer, src, seed) {
+    const bg = getLayerBg(layer);
+    if (!bg) return;
+    const fb = placeholderClass(seed);
+    bg.className = 'player__layer-bg ' + fb;
+    const result = await loadImage(src);
+    if (result.ok) {
+      bg.style.backgroundImage = `url("${result.src}")`;
+      bg.classList.remove(fb);
+    } else {
+      bg.style.backgroundImage = '';
+    }
+  }
+
   function getShow(id) {
     return CATALOG.shows[id];
   }
@@ -95,21 +135,33 @@
   }
 
   function loadImage(src) {
+    if (imageCache.has(src)) return Promise.resolve(imageCache.get(src));
     const candidates = imageCandidates(src);
     return new Promise((resolve) => {
       let i = 0;
       function tryNext() {
         if (i >= candidates.length) {
-          resolve({ ok: false, src: candidates[0] });
+          const result = { ok: false, src: candidates[0] };
+          imageCache.set(src, result);
+          resolve(result);
           return;
         }
         const img = new Image();
-        img.onload = () => resolve({ ok: true, src: candidates[i] });
+        img.onload = () => {
+          const result = { ok: true, src: candidates[i] };
+          imageCache.set(src, result);
+          resolve(result);
+        };
         img.onerror = () => { i += 1; tryNext(); };
         img.src = candidates[i];
       }
       tryNext();
     });
+  }
+
+  function preloadScene(show, index) {
+    if (!show || !show.scenes[index]) return;
+    loadImage(show.scenes[index].image);
   }
 
   function applyImageToEl(element, src, alt, seed) {
@@ -139,26 +191,28 @@
     const bar = loader.querySelector('.loader__bar');
     const messages = CATALOG.loader.messages;
     let progress = 0;
+    let displayProgress = 0;
     let msgIndex = 0;
 
     const preload = preloadShowImages();
-    const minTime = wait(reducedMotion ? 400 : 2400);
+    const minTime = wait(reducedMotion ? 400 : 2800);
     const start = performance.now();
 
-    const tick = () => {
-      const elapsed = performance.now() - start;
-      const target = Math.min(92, (elapsed / 2200) * 92);
+    const tick = (now) => {
+      const elapsed = now - start;
+      const target = Math.min(96, (elapsed / 2600) * 96);
       progress = Math.max(progress, target);
-      loaderFill.style.width = `${progress}%`;
-      bar.setAttribute('aria-valuenow', String(Math.round(progress)));
+      displayProgress = lerp(displayProgress, progress, 0.12);
+      loaderFill.style.width = `${displayProgress}%`;
+      bar.setAttribute('aria-valuenow', String(Math.round(displayProgress)));
 
-      const nextMsg = Math.floor(elapsed / 700) % messages.length;
+      const nextMsg = Math.min(messages.length - 1, Math.floor(elapsed / 750));
       if (nextMsg !== msgIndex) {
         msgIndex = nextMsg;
-        loaderStatus.textContent = messages[msgIndex];
+        setLoaderStatus(messages[msgIndex]);
       }
 
-      if (progress < 92) requestAnimationFrame(tick);
+      if (displayProgress < 95.5) requestAnimationFrame(tick);
     };
 
     if (!reducedMotion) requestAnimationFrame(tick);
@@ -167,11 +221,11 @@
     await Promise.all([preload, minTime]);
     loaderFill.style.width = '100%';
     bar.setAttribute('aria-valuenow', '100');
-    loaderStatus.textContent = 'Welcome to Nethraflix';
+    setLoaderStatus('Welcome to Nethraflix');
 
-    await wait(reducedMotion ? 200 : 500);
+    await wait(reducedMotion ? 200 : 600);
     loader.classList.add('screen--exit');
-    await wait(reducedMotion ? 0 : 500);
+    await wait(reducedMotion ? 0 : 550);
 
     loader.classList.add('hidden');
     loader.hidden = true;
@@ -210,6 +264,8 @@
     card.type = 'button';
     card.className = 'tile' + (show.isLetter ? ' tile--letter' : '');
     card.dataset.showId = show.id;
+    card.style.setProperty('--tile-delay', `${tileIndex * 70}ms`);
+    tileIndex += 1;
 
     const epCount = show.scenes ? show.scenes.length : 0;
     const epLabel = show.isLetter ? 'Letter' : `${epCount} Episodes`;
@@ -333,6 +389,18 @@
     playerState.progressRaf = requestAnimationFrame(step);
   }
 
+  function showPlayerChrome() {
+    player.classList.remove('player--ui-hidden');
+    window.clearTimeout(chromeHideTimer);
+    if (!player.hidden && playerState.playing && !reducedMotion) {
+      chromeHideTimer = window.setTimeout(() => {
+        if (!playerState.transitioning && playerState.playing) {
+          player.classList.add('player--ui-hidden');
+        }
+      }, 4000);
+    }
+  }
+
   async function setPlayerScene(index, direction) {
     if (!playerState.show || playerState.transitioning) return;
     const scenes = playerState.show.scenes;
@@ -340,24 +408,23 @@
 
     playerState.transitioning = true;
     stopPlayerTimer();
-    playerBuffer.classList.add('is-visible');
+    showPlayerChrome();
 
     const scene = scenes[index];
-    const result = await loadImage(scene.image);
+    const nextIndex = (index + 1) % scenes.length;
+    preloadScene(playerState.show, nextIndex);
 
     const incoming = playerState.activeLayer === 'a' ? playerLayerB : playerLayerA;
     const outgoing = playerState.activeLayer === 'a' ? playerLayerA : playerLayerB;
 
+    const cached = imageCache.get(scene.image);
+    const needsBuffer = !cached || !cached.ok;
+    if (needsBuffer) playerBuffer.classList.add('is-visible');
+
     incoming.className = `player__layer player__layer--${playerState.activeLayer === 'a' ? 'b' : 'a'}`;
     incoming.classList.remove('is-active', 'is-exit', 'slide-left', 'slide-right');
 
-    if (result.ok) {
-      incoming.style.backgroundImage = `url("${result.src}")`;
-      incoming.classList.remove(...PLACEHOLDER_CLASSES);
-    } else {
-      incoming.style.backgroundImage = '';
-      incoming.className += ' ' + placeholderClass(`${playerState.show.id}-${index}`);
-    }
+    await applyBgToLayerSync(incoming, scene.image, `${playerState.show.id}-${index}`);
     incoming.setAttribute('aria-label', scene.caption);
 
     if (!reducedMotion && direction) {
@@ -365,7 +432,7 @@
     }
 
     playerCaption.classList.remove('is-visible');
-    await wait(reducedMotion ? 0 : 80);
+    await wait(reducedMotion ? 0 : 60);
 
     incoming.classList.add('is-active');
     outgoing.classList.remove('is-active');
@@ -376,7 +443,7 @@
     playerCaption.textContent = scene.caption;
     updateProgressUI();
 
-    await wait(reducedMotion ? 0 : 520);
+    await wait(reducedMotion ? 0 : 680);
     playerCaption.classList.add('is-visible');
     playerBuffer.classList.remove('is-visible');
     playerState.transitioning = false;
@@ -439,9 +506,12 @@
     document.body.classList.add('player-open');
     await wait(20);
     player.classList.add('player--open');
+    showPlayerChrome();
 
     playerLayerA.className = 'player__layer player__layer--a';
     playerLayerB.className = 'player__layer player__layer--b';
+    getLayerBg(playerLayerA).className = 'player__layer-bg';
+    getLayerBg(playerLayerB).className = 'player__layer-bg';
     await setPlayerScene(0, 0);
     if (playerState.playing) scheduleNextScene();
     announce(`Now playing ${show.title}`);
@@ -450,8 +520,9 @@
 
   async function closePlayer() {
     stopPlayerTimer();
+    window.clearTimeout(chromeHideTimer);
     playerState.show = null;
-    player.classList.remove('player--open');
+    player.classList.remove('player--open', 'player--ui-hidden');
     await wait(reducedMotion ? 0 : 400);
     player.classList.add('hidden');
     player.hidden = true;
@@ -554,6 +625,25 @@
     playerTapLeft.addEventListener('click', prevScene);
     playerTapRight.addEventListener('click', nextScene);
 
+    let touchStartX = 0;
+    let touchStartY = 0;
+    player.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+      touchStartY = e.changedTouches[0].screenY;
+      showPlayerChrome();
+    }, { passive: true });
+    player.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].screenX - touchStartX;
+      const dy = e.changedTouches[0].screenY - touchStartY;
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 48) {
+        if (dx < 0) nextScene();
+        else prevScene();
+      }
+    }, { passive: true });
+
+    player.addEventListener('mousemove', showPlayerChrome, { passive: true });
+    player.addEventListener('click', showPlayerChrome);
+
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         if (!player.hidden) closePlayer();
@@ -561,6 +651,7 @@
         else if (!letterModal.hidden) closeLetter();
       }
       if (!player.hidden) {
+        showPlayerChrome();
         if (e.key === 'ArrowRight') nextScene();
         if (e.key === 'ArrowLeft') prevScene();
         if (e.key === ' ') { e.preventDefault(); togglePlay(); }

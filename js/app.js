@@ -12,6 +12,7 @@
 
   const intro = document.getElementById('intro');
   const home = document.getElementById('home');
+  const nav = document.querySelector('.nav');
   const rowsContainer = document.getElementById('rows');
   const modal = document.getElementById('modal');
   const letterModal = document.getElementById('letter-modal');
@@ -34,12 +35,21 @@
 
   let lastFocus = null;
   let showLookup = {};
+  let rowObserver = null;
+
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function announce(message) {
     liveRegion.textContent = '';
     window.setTimeout(() => {
       liveRegion.textContent = message;
     }, 30);
+  }
+
+  function wait(ms) {
+    return new Promise((resolve) => {
+      window.setTimeout(resolve, reducedMotion ? 0 : ms);
+    });
   }
 
   function placeholderClass(seed) {
@@ -121,15 +131,23 @@
     applyImage(heroBackdrop, hero.image, hero.title, hero.id);
   }
 
-  function createShowCard(show) {
+  function createShowCard(show, index) {
     const card = document.createElement('button');
     card.type = 'button';
     card.className = 'show-card' + (show.isLetter ? ' show-card--letter' : '');
     card.dataset.showId = show.id;
     card.setAttribute('aria-label', `${show.title}. ${show.caption}`);
+    card.style.transitionDelay = reducedMotion ? '0ms' : `${Math.min(index * 40, 200)}ms`;
 
     const poster = document.createElement('div');
     poster.className = 'show-card__poster';
+
+    if (!show.isLetter) {
+      const overlay = document.createElement('div');
+      overlay.className = 'show-card__overlay';
+      overlay.innerHTML = '<span class="show-card__play" aria-hidden="true">▶</span>';
+      poster.appendChild(overlay);
+    }
 
     if (show.isLetter) {
       const icon = document.createElement('span');
@@ -160,33 +178,119 @@
     return card;
   }
 
+  function setupRowControls(track) {
+    const prev = document.createElement('button');
+    prev.type = 'button';
+    prev.className = 'row__arrow row__arrow--prev';
+    prev.setAttribute('aria-label', 'Scroll left');
+    prev.textContent = '‹';
+
+    const next = document.createElement('button');
+    next.type = 'button';
+    next.className = 'row__arrow row__arrow--next';
+    next.setAttribute('aria-label', 'Scroll right');
+    next.textContent = '›';
+
+    function updateArrows() {
+      const maxScroll = track.scrollWidth - track.clientWidth;
+      prev.disabled = track.scrollLeft <= 4;
+      next.disabled = track.scrollLeft >= maxScroll - 4;
+    }
+
+    prev.addEventListener('click', () => {
+      track.scrollBy({ left: -track.clientWidth * 0.75, behavior: reducedMotion ? 'auto' : 'smooth' });
+    });
+
+    next.addEventListener('click', () => {
+      track.scrollBy({ left: track.clientWidth * 0.75, behavior: reducedMotion ? 'auto' : 'smooth' });
+    });
+
+    track.addEventListener('scroll', updateArrows, { passive: true });
+    window.setTimeout(updateArrows, 100);
+
+    return { prev, next };
+  }
+
   function renderRows() {
     rowsContainer.innerHTML = '';
 
-    CATALOG.rows.forEach((row) => {
+    CATALOG.rows.forEach((row, rowIndex) => {
       const section = document.createElement('section');
       section.className = 'row';
       section.setAttribute('aria-labelledby', `row-${row.id}`);
+      section.dataset.rowIndex = String(rowIndex);
+
+      const header = document.createElement('div');
+      header.className = 'row__header';
 
       const heading = document.createElement('h2');
       heading.id = `row-${row.id}`;
       heading.className = 'row__title';
       heading.textContent = row.title;
 
+      const controls = document.createElement('div');
+      controls.className = 'row__controls';
+
+      const wrap = document.createElement('div');
+      wrap.className = 'row__track-wrap';
+
       const track = document.createElement('div');
       track.className = 'row__track';
       track.setAttribute('role', 'list');
 
-      row.shows.forEach((show) => {
-        const card = createShowCard(show);
+      row.shows.forEach((show, index) => {
+        const card = createShowCard(show, index);
         card.setAttribute('role', 'listitem');
         track.appendChild(card);
       });
 
-      section.appendChild(heading);
-      section.appendChild(track);
+      const arrows = setupRowControls(track);
+      controls.appendChild(arrows.prev);
+      controls.appendChild(arrows.next);
+
+      header.appendChild(heading);
+      header.appendChild(controls);
+      wrap.appendChild(track);
+      section.appendChild(header);
+      section.appendChild(wrap);
       rowsContainer.appendChild(section);
     });
+  }
+
+  function setupRowObserver() {
+    if (reducedMotion || !('IntersectionObserver' in window)) {
+      document.querySelectorAll('.row').forEach((row) => row.classList.add('row--visible'));
+      return;
+    }
+
+    rowObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const row = entry.target;
+            const index = Number(row.dataset.rowIndex || 0);
+            window.setTimeout(() => {
+              row.classList.add('row--visible');
+            }, index * 80);
+            rowObserver.unobserve(row);
+          }
+        });
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+    );
+
+    document.querySelectorAll('.row').forEach((row) => rowObserver.observe(row));
+  }
+
+  function setupNavScroll() {
+    if (!nav) return;
+
+    function onScroll() {
+      nav.classList.toggle('nav--scrolled', window.scrollY > 40);
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
   }
 
   function getFocusable(container) {
@@ -213,6 +317,23 @@
     }
   }
 
+  async function openModalElement(element, onReady) {
+    element.hidden = false;
+    element.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+    onReady();
+    await wait(20);
+    element.classList.add('modal--open');
+  }
+
+  async function closeModalElement(element) {
+    element.classList.remove('modal--open');
+    await wait(reducedMotion ? 0 : 320);
+    element.classList.add('hidden');
+    element.hidden = true;
+    document.body.classList.remove('modal-open');
+  }
+
   function openShow(id) {
     const show = showLookup[id];
     if (!show || show.isLetter) return;
@@ -225,21 +346,17 @@
     modalHero.className = 'modal__hero ' + placeholderClass(show.id);
     applyImage(modalHero, show.image, show.title, show.id);
 
-    modal.hidden = false;
-    modal.classList.remove('hidden');
-    document.body.classList.add('modal-open');
-    announce(`Opened ${show.title}`);
+    openModalElement(modal, () => announce(`Opened ${show.title}`));
 
     const closeBtn = modal.querySelector('.modal__close');
-    window.setTimeout(() => closeBtn.focus(), 50);
+    window.setTimeout(() => closeBtn.focus(), 80);
   }
 
   function closeShow() {
-    modal.classList.add('hidden');
-    modal.hidden = true;
-    document.body.classList.remove('modal-open');
-    if (lastFocus) lastFocus.focus();
-    announce('Closed memory details');
+    closeModalElement(modal).then(() => {
+      if (lastFocus) lastFocus.focus();
+      announce('Closed memory details');
+    });
   }
 
   function openLetter() {
@@ -249,21 +366,17 @@
       .map((line) => (line ? `<p>${escapeHtml(line)}</p>` : '<p aria-hidden="true">&nbsp;</p>'))
       .join('');
 
-    letterModal.hidden = false;
-    letterModal.classList.remove('hidden');
-    document.body.classList.add('modal-open');
-    announce('Opened birthday letter');
+    openModalElement(letterModal, () => announce('Opened birthday letter'));
 
     const closeBtn = letterModal.querySelector('.modal__close');
-    window.setTimeout(() => closeBtn.focus(), 50);
+    window.setTimeout(() => closeBtn.focus(), 80);
   }
 
   function closeLetter() {
-    letterModal.classList.add('hidden');
-    letterModal.hidden = true;
-    document.body.classList.remove('modal-open');
-    if (lastFocus) lastFocus.focus();
-    announce('Closed birthday letter');
+    closeModalElement(letterModal).then(() => {
+      if (lastFocus) lastFocus.focus();
+      announce('Closed birthday letter');
+    });
   }
 
   function escapeHtml(text) {
@@ -274,14 +387,23 @@
       .replace(/"/g, '&quot;');
   }
 
-  function enterHome() {
+  async function enterHome() {
+    const profileBtn = document.querySelector('[data-profile="nethra"]');
+    profileBtn.disabled = true;
+    profileBtn.classList.add('profile--entering');
+    intro.classList.add('screen--exit');
+
+    await wait(650);
+
     intro.classList.add('hidden');
     intro.hidden = true;
     home.hidden = false;
     home.classList.remove('hidden');
-    home.classList.add('screen--fade-in');
+    home.classList.add('screen--enter');
+
     announce(`Welcome to ${CATALOG.brand}`);
-    heroPlay.focus();
+    setupRowObserver();
+    window.setTimeout(() => heroPlay.focus(), 400);
   }
 
   function bindEvents() {
@@ -330,6 +452,7 @@
       renderHero();
       renderRows();
       bindEvents();
+      setupNavScroll();
     } catch (error) {
       console.error(error);
       showBootError(error.message || 'Something went wrong while loading the site.');

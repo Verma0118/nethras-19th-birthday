@@ -27,18 +27,22 @@
 
   <!-- Who's watching? -->
   <section id="intro" class="screen screen--intro" aria-label="Choose profile">
+    <div class="intro__ambient" aria-hidden="true"></div>
+    <p class="intro__logo">NETHRAFLIX</p>
     <h1 class="intro__heading">Who's watching?</h1>
     <div class="intro__profiles" role="list">
-      <button type="button" class="profile profile--active" data-profile="nethra" aria-label="Nethra's profile">
+      <button type="button" class="profile profile--active profile--animate" data-profile="nethra" aria-label="Nethra's profile">
+        <span class="profile__ring" aria-hidden="true"></span>
         <span class="profile__avatar" id="profile-avatar-nethra"></span>
         <span class="profile__name">Nethra</span>
       </button>
-      <div class="profile profile--locked" role="listitem" aria-label="Aarav's profile, locked">
+      <div class="profile profile--locked profile--animate profile--animate-delay" role="listitem" aria-label="Aarav's profile, locked">
         <span class="profile__avatar profile__avatar--locked" id="profile-avatar-aarav"></span>
         <span class="profile__name">Aarav</span>
         <span class="profile__lock" aria-hidden="true">♥</span>
       </div>
     </div>
+    <p class="intro__hint">Tap your profile to continue</p>
   </section>
 
   <!-- Home -->
@@ -56,7 +60,8 @@
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero__backdrop" id="hero-backdrop" role="img" aria-label="Featured memory"></div>
         <div class="hero__gradient"></div>
-        <div class="hero__content">
+        <div class="hero__vignette" aria-hidden="true"></div>
+        <div class="hero__content hero__content--animate">
           <p class="hero__eyebrow">Featured</p>
           <h1 id="hero-title" class="hero__title"></h1>
           <p id="hero-tagline" class="hero__tagline"></p>
@@ -111,6 +116,7 @@
   </div>
 
   <div id="live-region" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+  <div class="film-grain" aria-hidden="true"></div>
 
   <script src="js/catalog.js"></script>
   <script src="js/app.js"></script>

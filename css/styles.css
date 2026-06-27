@@ -227,9 +227,23 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
 .profile--active:hover .profile__ring { opacity: 1; transform: translateX(-50%) scale(1.05); }
 
 .profile__avatar {
-  width: 100%; aspect-ratio: 1; border-radius: 8px; border: 3px solid transparent;
-  background: linear-gradient(145deg, #3d1518, #141414) center/cover;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  border: 3px solid transparent;
+  background-color: #141414;
+  overflow: hidden;
+  position: relative;
   transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+.profile__avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%;
+  display: block;
 }
 
 .profile--active:hover .profile__avatar {

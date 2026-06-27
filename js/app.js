@@ -116,6 +116,12 @@
     }
   }
 
+  function resolveAssetPath(path) {
+    if (/^https?:\/\//i.test(path)) return path;
+    const base = document.querySelector('base')?.href || `${window.location.origin}/`;
+    return new URL(path, base).href;
+  }
+
   function getShow(id) {
     return CATALOG.shows[id];
   }
@@ -135,25 +141,26 @@
   }
 
   function loadImage(src) {
-    if (imageCache.has(src)) return Promise.resolve(imageCache.get(src));
+    if (imageCache.has(src)) {
+      const cached = imageCache.get(src);
+      if (cached.ok) return Promise.resolve(cached);
+    }
     const candidates = imageCandidates(src);
     return new Promise((resolve) => {
       let i = 0;
       function tryNext() {
         if (i >= candidates.length) {
-          const result = { ok: false, src: candidates[0] };
-          imageCache.set(src, result);
-          resolve(result);
+          resolve({ ok: false, src: candidates[0] });
           return;
         }
         const img = new Image();
         img.onload = () => {
-          const result = { ok: true, src: candidates[i] };
+          const result = { ok: true, src: resolveAssetPath(candidates[i]) };
           imageCache.set(src, result);
           resolve(result);
         };
         img.onerror = () => { i += 1; tryNext(); };
-        img.src = candidates[i];
+        img.src = resolveAssetPath(candidates[i]);
       }
       tryNext();
     });
@@ -171,9 +178,30 @@
     loadImage(src).then(({ ok, src: resolved }) => {
       if (ok) {
         element.style.backgroundImage = `url("${resolved}")`;
+        element.style.backgroundSize = 'cover';
+        element.style.backgroundPosition = 'center';
         element.classList.remove(fb);
       }
     });
+  }
+
+  function renderProfileAvatar(element, src, alt, seed) {
+    element.className = element.classList.contains('profile__avatar--locked')
+      ? 'profile__avatar profile__avatar--locked'
+      : 'profile__avatar';
+    element.innerHTML = '';
+    const img = document.createElement('img');
+    img.className = 'profile__avatar-img';
+    img.alt = alt;
+    img.decoding = 'async';
+    img.src = resolveAssetPath(src);
+    img.onload = () => element.classList.remove(placeholderClass(seed));
+    img.onerror = () => {
+      element.classList.add(placeholderClass(seed));
+      img.remove();
+    };
+    element.appendChild(img);
+    element.classList.add(placeholderClass(seed));
   }
 
   function preloadShowImages() {
@@ -236,13 +264,13 @@
   }
 
   function renderProfiles() {
-    applyImageToEl(
+    renderProfileAvatar(
       document.getElementById('profile-avatar-nethra'),
       CATALOG.profile.avatar,
       `${CATALOG.profile.name}'s profile`,
       'nethra'
     );
-    applyImageToEl(
+    renderProfileAvatar(
       document.getElementById('profile-avatar-aarav'),
       CATALOG.lockedProfile.avatar,
       `${CATALOG.lockedProfile.name}'s profile`,

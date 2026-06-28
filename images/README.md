@@ -1,7 +1,5 @@
 # Adding Your Photos
 
-**8 photos total** for the other movies (2 episodes each). My FaceTime Baby has **13 photos** in its own folder.
-
 ## Required
 
 | File | Used for |
@@ -10,33 +8,30 @@
 | `aarav.jpg` | (Optional) Your locked profile |
 | `letter-cover.jpg` | Cover for the letter card |
 
-## Show photos (2 per movie)
+## Show photos
 
-Drop pairs into `images/shows/`:
+| Show | Folder | Count |
+|------|--------|-------|
+| Us: The Series | `shows/us/01.jpg`–`04.jpg` | 4 |
+| Our Places | `shows/places/01.jpg`–`23.jpg` | 23 |
+| That Smile | `shows/smile/01.jpg`–`08.jpg` | 8 |
+| My FaceTime Baby | `shows/facetime/01.jpg`–`13.jpg` | 13 |
 
-| Show | Files |
-|------|-------|
-| Us: The Series | `01-a.jpg`, `01-b.jpg` |
-| Our Places | `places/01.jpg` through `places/23.jpg` (23 photos of us out together) |
-| That Smile | `smile/01.jpg` through `smile/08.jpg` (8 photos) |
-| My FaceTime Baby | `facetime/01.jpg` through `facetime/13.jpg` (13 FaceTime screenshots) |
-
-When she taps **Play**, each movie cycles through its 2 photos with captions.
+When she taps **Play**, each show runs a fullscreen slideshow with its intro, then cycles through every photo.
 
 ## Editing text
 
 Open `js/catalog.js`:
 - `hero.tagline` and `hero.meta` — banner text (meta says **6 Months**)
-- Each show's `title`, `synopsis`, `meta`
-- Each scene's `caption`
+- Each show's `title`, `synopsis`, `meta`, `intro`
 - `letter.body` — the birthday letter
 
 ## Tips
 
 - **iPhone photos:** Export as **JPG** first — HEIC won't work in browsers
 - **Format:** `.jpg`, `.jpeg`, or `.png` all work
-- **Names:** Must match exactly (`01-a.jpg` not `IMG_1234.jpg`)
-- **Best look:** Landscape for movie tiles, portrait works too
+- **Names:** Must match exactly what's in `catalog.js`
+- **No duplicates:** Each photo should only appear in one show
 
 ## Preview
 

@@ -1,6 +1,6 @@
 # Nethraflix
 
-A cinematic birthday gift for Nethra — Netflix-style, with 5 movies, 10 photos, and a letter.
+A cinematic birthday gift for Nethra — Netflix-style, with photo slideshows and a letter.
 
 **Live:** [verma0118.github.io/nethras-19th-birthday](https://verma0118.github.io/nethras-19th-birthday/)
 
@@ -14,7 +14,7 @@ A cinematic birthday gift for Nethra — Netflix-style, with 5 movies, 10 photos
 
 ## Add your photos
 
-See [`images/README.md`](images/README.md) — 10 photos as `01-a.jpg` through `05-b.jpg`, plus profile + letter cover.
+See [`images/README.md`](images/README.md) for folder layout and photo counts.
 
 Edit captions in [`js/catalog.js`](js/catalog.js).
 

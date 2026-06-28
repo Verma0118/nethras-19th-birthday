@@ -40,13 +40,17 @@ const CATALOG = {
     'us-the-series': {
       id: 'us-the-series',
       title: 'Us: The Series',
-      meta: 'Limited Series, Romance, ★★★★★, 2 Episodes',
+      meta: 'Limited Series, Romance, ★★★★★, 4 Episodes',
       synopsis: 'Six months of us. Every moment worth replaying.',
       intro: 'Chikki, this is us. Six months in and I still cannot believe I get to call you mine.',
-      poster: 'images/shows/01-a.jpg',
+      poster: 'images/shows/us/01.jpg',
+      fit: 'contain',
+      loop: false,
       scenes: [
-        { image: 'images/shows/01-a.jpg' },
-        { image: 'images/shows/01-b.jpg' },
+        { image: 'images/shows/us/01.jpg' },
+        { image: 'images/shows/us/02.jpg' },
+        { image: 'images/shows/us/03.jpg' },
+        { image: 'images/shows/us/04.jpg' },
       ],
     },
     'first-adventures': {

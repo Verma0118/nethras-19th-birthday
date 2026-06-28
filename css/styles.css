@@ -1243,9 +1243,9 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
 .goose-field {
   position: fixed;
   inset: 0;
-  z-index: 45;
+  z-index: 65;
   pointer-events: none;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .goose {
@@ -1254,7 +1254,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   top: 0;
   z-index: 1;
   pointer-events: auto;
-  padding: 0.35rem;
+  padding: 0.5rem;
   border: none;
   background: none;
   cursor: pointer;
@@ -1263,19 +1263,22 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
   animation-direction: alternate;
+  animation-fill-mode: both;
   transform-origin: center center;
-  transition: transform 0.25s var(--spring);
-  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35));
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 14px rgba(255, 255, 255, 0.35));
+  will-change: transform;
 }
 
 .goose:hover,
 .goose:focus-visible {
-  filter: drop-shadow(0 10px 20px rgba(240, 160, 48, 0.25));
+  filter:
+    drop-shadow(0 8px 18px rgba(0, 0, 0, 0.6))
+    drop-shadow(0 0 22px rgba(240, 160, 48, 0.55));
 }
 
 .goose:hover .goose__sprite,
 .goose:focus-visible .goose__sprite {
-  transform: scale(1.12);
+  transform: scale(1.15);
 }
 
 .goose--happy .goose__sprite {
@@ -1293,6 +1296,12 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   position: relative;
   z-index: 2;
   transition: transform 0.25s var(--spring);
+  animation: gooseBob 2.8s ease-in-out infinite;
+}
+
+@keyframes gooseBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 
 .goose__wing {
@@ -1307,17 +1316,19 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
 
 .goose__trail {
   position: absolute;
-  right: 62%;
-  top: 28%;
+  right: 58%;
+  top: 22%;
   z-index: 0;
-  opacity: 0.75;
+  opacity: 0.9;
   transform: rotate(-18deg);
   animation: trailBob 2.4s ease-in-out infinite;
   pointer-events: none;
 }
 
 .goose__trail-svg path {
-  animation: trailDash 1.2s linear infinite;
+  stroke: rgba(255, 220, 140, 0.75);
+  stroke-width: 2.5;
+  animation: trailDash 1s linear infinite;
 }
 
 @keyframes trailDash {
@@ -1408,7 +1419,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
 }
 
 @media (max-width: 640px) {
-  .goose__art { width: 42px; height: 36px; }
+  .goose__art { width: 58px; height: 50px; }
   .goose__bubble { font-size: 0.78rem; min-width: min(200px, 76vw); }
 }
 
@@ -1424,6 +1435,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
 
   .goose__trail,
   .goose__wing,
+  .goose__sprite,
   .hero__eyebrow {
     animation: none !important;
   }

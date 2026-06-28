@@ -1156,67 +1156,436 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
 .info-panel__synopsis { margin: 0 0 1.5rem; color: var(--text-muted); line-height: 1.65; }
 .info-panel__play { width: 100%; justify-content: center; }
 
-/* ─── LETTER ─── */
+/* ─── LETTER SCENE ─── */
 .letter-modal {
-  position: fixed; inset: 0; z-index: 250;
-  display: grid; place-items: center; padding: 1rem;
+  position: fixed;
+  inset: 0;
+  z-index: 280;
+  display: grid;
+  place-items: center;
+  padding: 0;
 }
 
 .letter-modal__backdrop {
-  position: absolute; inset: 0; background: rgba(0,0,0,0);
-  transition: background 0.35s;
+  position: absolute;
+  inset: 0;
+  background: rgba(12, 8, 6, 0);
+  transition: background 0.6s var(--ease);
 }
 
-.letter-modal--open .letter-modal__backdrop { background: rgba(0,0,0,0.82); }
-
-.letter-modal__panel {
-  position: relative; width: min(520px, 100%); max-height: 88dvh; overflow: auto;
-  background: linear-gradient(160deg, #1a1014, var(--bg-elevated));
-  border: 1px solid rgba(229,9,20,0.2); border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
-  opacity: 0; transform: translateY(20px) scale(0.97);
-  transition: opacity 0.4s var(--ease), transform 0.45s var(--spring);
+.letter-modal--open .letter-modal__backdrop {
+  background: rgba(12, 8, 6, 0.92);
 }
 
-.letter-modal--open .letter-modal__panel { opacity: 1; transform: translateY(0) scale(1); }
-
-.letter-modal__close {
-  position: absolute; top: 0.85rem; right: 0.85rem; z-index: 2;
-  width: 2.25rem; height: 2.25rem; border-radius: 50%;
-  background: rgba(0,0,0,0.5); font-size: 1.35rem;
+.letter-scene {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(255, 220, 160, 0.12), transparent 60%),
+    radial-gradient(ellipse 100% 80% at 50% 100%, rgba(80, 50, 30, 0.35), transparent 55%),
+    linear-gradient(165deg, #1a1410 0%, #0d0a08 45%, #120e0c 100%);
 }
 
-.letter { padding: 2.5rem 1.75rem 2rem; }
-
-.letter__eyebrow {
-  margin: 0 0 0.5rem; font-size: 0.75rem; font-weight: 700;
-  letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent);
+.letter-scene__vignette {
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.65);
+  pointer-events: none;
 }
 
-.letter__title {
-  margin: 0 0 1.25rem; font-family: var(--font-display);
-  font-size: 2.25rem; font-weight: 700;
+.letter-scene__dust {
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255, 230, 180, 0.08) 0 1px, transparent 2px),
+    radial-gradient(circle at 70% 60%, rgba(255, 230, 180, 0.06) 0 1px, transparent 2px);
+  pointer-events: none;
 }
 
-.letter__body { font-size: 1.05rem; line-height: 1.75; color: var(--text-muted); }
-.letter__body p { margin: 0 0 0.7rem; }
-
-.letter-modal--open .letter__body p {
-  animation: fadeUp 0.5s var(--ease) both;
+.letter-scene__label {
+  margin: 0 0 1.25rem;
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255, 220, 180, 0.55);
+  text-align: center;
 }
 
-.letter-modal--open .letter__body p:nth-child(1) { animation-delay: 0.1s; }
-.letter-modal--open .letter__body p:nth-child(2) { animation-delay: 0.15s; }
-.letter-modal--open .letter__body p:nth-child(3) { animation-delay: 0.2s; }
-.letter-modal--open .letter__body p:nth-child(4) { animation-delay: 0.25s; }
-.letter-modal--open .letter__body p:nth-child(5) { animation-delay: 0.3s; }
-.letter-modal--open .letter__body p:nth-child(6) { animation-delay: 0.35s; }
-.letter-modal--open .letter__body p:nth-child(7) { animation-delay: 0.4s; }
-.letter-modal--open .letter__body p:nth-child(8) { animation-delay: 0.45s; }
-.letter-modal--open .letter__body p:nth-child(9) { animation-delay: 0.5s; }
-.letter-modal--open .letter__body p:nth-child(10) { animation-delay: 0.55s; }
+.letter-envelope-stage {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: opacity 0.5s var(--ease), transform 0.6s var(--ease);
+}
 
-.letter__signoff { margin: 1.75rem 0 0; font-size: 1.05rem; font-weight: 600; }
+.letter-modal--pull .letter-envelope-stage {
+  opacity: 0;
+  transform: translateY(30px) scale(0.92);
+  pointer-events: none;
+}
+
+.letter-envelope {
+  position: relative;
+  width: min(340px, 82vw);
+  height: min(220px, 52vw);
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: transform 0.35s var(--spring);
+}
+
+.letter-envelope:hover,
+.letter-envelope:focus-visible {
+  transform: translateY(-6px) scale(1.02);
+}
+
+.letter-envelope__shadow {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: -12px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  filter: blur(10px);
+}
+
+.letter-envelope__body {
+  position: absolute;
+  inset: 18% 0 0;
+  border-radius: 4px 4px 6px 6px;
+  background: linear-gradient(160deg, #f3e6cf 0%, #e8d4b0 55%, #dcc89a 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+.letter-envelope__liner {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  top: 22%;
+  bottom: 8%;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #faf6ee, #efe4d0);
+  border: 1px solid rgba(120, 90, 50, 0.15);
+}
+
+.letter-envelope__flap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 52%;
+  background: linear-gradient(180deg, #ead8b8 0%, #dcc39a 100%);
+  clip-path: polygon(0 0, 50% 72%, 100% 0);
+  transform-origin: top center;
+  transition: transform 0.7s var(--ease);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  z-index: 3;
+}
+
+.letter-modal--open-flap .letter-envelope__flap {
+  transform: rotateX(180deg);
+}
+
+.letter-envelope__string {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 2px;
+  height: 38%;
+  background: linear-gradient(180deg, #8b5a2b, #6b4220);
+  transform: translateX(-50%);
+  z-index: 5;
+  transition: opacity 0.4s, transform 0.5s var(--ease);
+}
+
+.letter-envelope__knot {
+  position: absolute;
+  left: 50%;
+  top: 55%;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #a06830, #5c3818);
+  transform: translate(-50%, -50%);
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.2), 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.letter-modal--untie .letter-envelope__string {
+  opacity: 0;
+  transform: translateX(-50%) scaleY(0.3);
+}
+
+.letter-envelope__wax {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  z-index: 6;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: rgba(255, 230, 200, 0.9);
+  background: radial-gradient(circle at 35% 30%, #c43b3b, #7a1a1a);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), inset 0 2px 6px rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: opacity 0.35s, transform 0.45s var(--spring);
+}
+
+.letter-modal--untie .letter-envelope__wax {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.4);
+}
+
+.letter-envelope__name {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  transform: translateX(-50%);
+  font-family: 'Caveat', cursive;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 600;
+  color: #4a3020;
+  z-index: 4;
+  white-space: nowrap;
+}
+
+.letter-envelope__hint {
+  margin: 1.5rem 0 0;
+  font-size: 0.85rem;
+  color: rgba(255, 220, 180, 0.45);
+  letter-spacing: 0.08em;
+  animation: hintPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes hintPulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.9; }
+}
+
+.letter-modal--goose-arrive .letter-envelope__hint,
+.letter-modal--untie .letter-envelope__hint,
+.letter-modal--open-flap .letter-envelope__hint,
+.letter-modal--pull .letter-envelope__hint {
+  animation: none;
+  opacity: 0;
+}
+
+/* Messenger goose */
+.letter-messenger {
+  position: absolute;
+  z-index: 8;
+  left: -20%;
+  top: 8%;
+  opacity: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.45));
+}
+
+.letter-modal--goose-arrive .letter-messenger {
+  animation: letterGooseFly 1.15s var(--ease) forwards;
+}
+
+.letter-messenger__wing {
+  transform-origin: 18px 28px;
+  animation: wingFlap 0.45s ease-in-out infinite alternate;
+}
+
+@keyframes letterGooseFly {
+  0% {
+    opacity: 0;
+    transform: translate(-10vw, -5vh) rotate(-15deg) scale(0.65);
+  }
+  18% { opacity: 1; }
+  75% {
+    transform: translate(calc(50vw - 52px), calc(50vh - 48px)) rotate(6deg) scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(calc(50vw - 52px), calc(50vh - 32px)) rotate(0deg) scale(1);
+  }
+}
+
+.letter-modal--untie .letter-messenger,
+.letter-modal--open-flap .letter-messenger {
+  opacity: 1;
+  transform: translate(calc(50vw - 52px), calc(50vh - 32px));
+}
+
+/* Letter paper */
+.letter-paper {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 4vw, 2rem);
+  opacity: 0;
+  transform: translateY(40px) scale(0.94);
+  transition: opacity 0.6s var(--ease), transform 0.7s var(--spring);
+}
+
+.letter-paper:not(.hidden) {
+  display: grid;
+}
+
+.letter-modal--reading .letter-paper {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.letter-paper__close {
+  position: absolute;
+  top: clamp(0.75rem, 3vw, 1.25rem);
+  right: clamp(0.75rem, 3vw, 1.25rem);
+  z-index: 12;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.letter-paper__sheet {
+  position: relative;
+  width: min(520px, 100%);
+  max-height: min(78dvh, 640px);
+  overflow: auto;
+  padding: clamp(2rem, 6vw, 3rem) clamp(1.75rem, 5vw, 2.5rem);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0%, transparent 12%),
+    linear-gradient(160deg, #faf4e8 0%, #f0e4cc 40%, #e8d8bc 100%);
+  border: 1px solid rgba(120, 90, 50, 0.25);
+  border-radius: 3px;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.45),
+    inset 0 0 80px rgba(139, 90, 43, 0.06);
+}
+
+.letter-paper__sheet::before {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  border: 1px solid rgba(120, 90, 50, 0.12);
+  pointer-events: none;
+}
+
+.letter-paper__date {
+  margin: 0 0 1.25rem;
+  font-family: 'Caveat', cursive;
+  font-size: 1.15rem;
+  color: rgba(74, 48, 32, 0.55);
+}
+
+.letter-paper__ink {
+  margin: 0;
+  min-height: 4rem;
+  font-family: 'Caveat', cursive;
+  font-size: clamp(1.75rem, 5vw, 2.35rem);
+  font-weight: 600;
+  line-height: 1.45;
+  color: #2a1810;
+  white-space: pre-wrap;
+}
+
+.letter-paper__ink::after {
+  content: '|';
+  display: inline-block;
+  margin-left: 1px;
+  animation: inkCaret 0.9s step-end infinite;
+  color: rgba(42, 24, 16, 0.55);
+}
+
+.letter-paper__ink--done::after {
+  display: none;
+}
+
+@keyframes inkCaret {
+  50% { opacity: 0; }
+}
+
+.letter-paper__signoff {
+  margin: 2rem 0 0;
+  font-family: 'Caveat', cursive;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 700;
+  color: #3d2518;
+}
+
+.letter-paper__signoff:not(.hidden) {
+  animation: inkFadeIn 0.8s var(--ease) 0.3s both;
+}
+
+@keyframes inkFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Letter tile preview */
+.tile__poster--envelope {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 55%, rgba(255, 220, 160, 0.15), transparent 60%),
+    linear-gradient(155deg, #2a1f18 0%, #1a1210 100%) !important;
+}
+
+.tile__poster--envelope::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 42%;
+  height: 58%;
+  transform: translate(-50%, -46%);
+  border-radius: 3px;
+  background: linear-gradient(160deg, #f3e6cf, #dcc89a);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+}
+
+.tile__poster--envelope::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 32%;
+  width: 42%;
+  height: 30%;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, #ead8b8, #dcc39a);
+  clip-path: polygon(0 0, 50% 100%, 100% 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .letter-modal--goose-arrive .letter-messenger {
+    animation: none;
+    opacity: 1;
+    left: 50%;
+    top: 42%;
+    transform: translate(-50%, -50%);
+  }
+
+  .letter-envelope__flap {
+    transition-duration: 0.01ms;
+  }
+
+  .letter-envelope__hint {
+    animation: none;
+  }
+}
 
 /* Placeholders */
 .poster--rose { background-image: linear-gradient(145deg, #4a1c28, #1a1014); }
@@ -1394,6 +1763,12 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   100% { transform: translate(14vw, 32vh); }
 }
 
+@keyframes goosePathIntroC {
+  0% { transform: translate(45vw, 55vh); }
+  50% { transform: translate(65vw, 40vh); }
+  100% { transform: translate(30vw, 62vh); }
+}
+
 @keyframes goosePathHomeA {
   0% { transform: translate(6vw, 24vh); }
   50% { transform: translate(62vw, 14vh); }
@@ -1430,6 +1805,18 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   100% { transform: translate(52vw, 36vh); }
 }
 
+@keyframes goosePathHomeG {
+  0% { transform: translate(58vw, 75vh); }
+  50% { transform: translate(40vw, 60vh); }
+  100% { transform: translate(68vw, 48vh); }
+}
+
+@keyframes goosePathHomeH {
+  0% { transform: translate(35vw, 15vh); }
+  50% { transform: translate(55vw, 30vh); }
+  100% { transform: translate(25vw, 25vh); }
+}
+
 @media (max-width: 640px) {
   .goose__art { width: 58px; height: 50px; }
   .goose__bubble { font-size: 0.78rem; min-width: min(200px, 76vw); }
@@ -1446,6 +1833,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   .goose[data-path="d"] { transform: translate(72vw, 68vh); }
   .goose[data-path="e"] { transform: translate(48vw, 45vh); }
   .goose[data-path="f"] { transform: translate(15vw, 42vh); }
+  .goose[data-path="g"] { transform: translate(58vw, 75vh); }
+  .goose[data-path="h"] { transform: translate(35vw, 15vh); }
 
   .goose__trail,
   .goose__wing,

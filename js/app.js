@@ -55,8 +55,15 @@
   const infoPlay = document.getElementById('info-play');
 
   const letterModal = document.getElementById('letter-modal');
-  const letterTitle = document.getElementById('letter-title');
-  const letterBody = document.getElementById('letter-body');
+  const letterOpenBtn = document.getElementById('letter-open-btn');
+  const letterPaper = document.getElementById('letter-paper');
+  const letterInk = document.getElementById('letter-ink');
+  const letterSignoff = document.getElementById('letter-signoff');
+  const letterDate = document.getElementById('letter-date');
+  const letterHint = document.getElementById('letter-hint');
+
+  let letterAnimating = false;
+  let letterInkTimer = null;
 
   let lastFocus = null;
   let featuredShow = null;
@@ -326,7 +333,11 @@
 
     const poster = document.createElement('div');
     poster.className = 'tile__poster' + (show.fit === 'contain' ? ' tile__poster--contain' : '');
-    applyImageToEl(poster, show.poster, show.title, show.id, show.fit || 'cover');
+    if (show.isLetter) {
+      poster.classList.add('tile__poster--envelope');
+    } else {
+      applyImageToEl(poster, show.poster, show.title, show.id, show.fit || 'cover');
+    }
 
     const shine = document.createElement('div');
     shine.className = 'tile__shine';
@@ -671,22 +682,117 @@
     }, reducedMotion ? 0 : 320);
   }
 
+  function resetLetterScene() {
+    window.clearInterval(letterInkTimer);
+    letterInkTimer = null;
+    letterAnimating = false;
+    letterModal.classList.remove(
+      'letter-modal--open',
+      'letter-modal--goose-arrive',
+      'letter-modal--untie',
+      'letter-modal--open-flap',
+      'letter-modal--pull',
+      'letter-modal--reading'
+    );
+    if (letterPaper) letterPaper.classList.add('hidden');
+    if (letterInk) {
+      letterInk.textContent = '';
+      letterInk.classList.remove('letter-paper__ink--done');
+    }
+    if (letterSignoff) letterSignoff.classList.add('hidden');
+    if (letterOpenBtn) letterOpenBtn.disabled = false;
+    if (letterHint) letterHint.textContent = 'tap the envelope';
+  }
+
+  function getLetterText() {
+    const body = CATALOG.letter.body;
+    if (typeof body === 'string') return body;
+    if (Array.isArray(body)) return body.filter(Boolean).join('\n\n');
+    return 'filler for now';
+  }
+
+  function startInkReveal() {
+    const fullText = getLetterText();
+    if (!letterInk) return;
+    letterInk.textContent = '';
+    letterInk.classList.remove('letter-paper__ink--done');
+    let index = 0;
+    const step = reducedMotion ? fullText.length : 1;
+    const delay = reducedMotion ? 0 : 65;
+
+    letterInkTimer = window.setInterval(() => {
+      letterInk.textContent += fullText.slice(index, index + step);
+      index += step;
+      if (index >= fullText.length) {
+        window.clearInterval(letterInkTimer);
+        letterInkTimer = null;
+        letterInk.classList.add('letter-paper__ink--done');
+        if (letterSignoff && CATALOG.letter.signoff) {
+          letterSignoff.textContent = CATALOG.letter.signoff;
+          letterSignoff.classList.remove('hidden');
+        }
+      }
+    }, delay);
+  }
+
+  async function playLetterReveal() {
+    if (letterAnimating) return;
+    letterAnimating = true;
+    if (letterOpenBtn) letterOpenBtn.disabled = true;
+    if (letterHint) letterHint.textContent = '';
+
+    if (reducedMotion) {
+      letterModal.classList.add('letter-modal--untie', 'letter-modal--open-flap', 'letter-modal--pull', 'letter-modal--reading');
+      if (letterPaper) letterPaper.classList.remove('hidden');
+      startInkReveal();
+      letterAnimating = false;
+      letterPaper.querySelector('.letter-paper__close').focus();
+      return;
+    }
+
+    letterModal.classList.add('letter-modal--goose-arrive');
+    await wait(1150);
+    letterModal.classList.add('letter-modal--untie');
+    await wait(700);
+    letterModal.classList.add('letter-modal--open-flap');
+    await wait(750);
+    letterModal.classList.add('letter-modal--pull');
+    await wait(500);
+    if (letterPaper) letterPaper.classList.remove('hidden');
+    letterModal.classList.add('letter-modal--reading');
+    await wait(400);
+    startInkReveal();
+    letterAnimating = false;
+    letterPaper.querySelector('.letter-paper__close').focus();
+  }
+
   function openLetter() {
     hideGeese();
     lastFocus = document.activeElement;
-    letterTitle.textContent = CATALOG.letter.title;
-    letterBody.innerHTML = CATALOG.letter.body
-      .map((line) => (line ? `<p>${escapeHtml(line)}</p>` : '<p aria-hidden="true">&nbsp;</p>'))
-      .join('');
+    resetLetterScene();
+
+    if (letterDate) {
+      letterDate.textContent = new Date().toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      });
+    }
+
     letterModal.hidden = false;
     letterModal.classList.remove('hidden');
     document.body.classList.add('modal-open');
-    window.setTimeout(() => letterModal.classList.add('letter-modal--open'), 20);
-    announce('Opened birthday letter');
-    letterModal.querySelector('.letter-modal__close').focus();
+    window.requestAnimationFrame(() => {
+      letterModal.classList.add('letter-modal--open');
+    });
+
+    announce('A letter for you. Tap the envelope to open.');
+    if (letterOpenBtn) letterOpenBtn.focus();
   }
 
   function closeLetter() {
+    if (letterAnimating) return;
+    resetLetterScene();
     letterModal.classList.remove('letter-modal--open');
     window.setTimeout(() => {
       letterModal.classList.add('hidden');
@@ -734,6 +840,7 @@
     infoPlay.addEventListener('click', () => { closeInfo(); openPlayer(infoShowId); });
     infoPanel.querySelectorAll('[data-close-info]').forEach((el) => el.addEventListener('click', closeInfo));
     letterModal.querySelectorAll('[data-close-letter]').forEach((el) => el.addEventListener('click', closeLetter));
+    if (letterOpenBtn) letterOpenBtn.addEventListener('click', playLetterReveal);
 
     playerClose.addEventListener('click', closePlayer);
     playerPrev.addEventListener('click', prevScene);

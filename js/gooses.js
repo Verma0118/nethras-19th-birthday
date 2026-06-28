@@ -16,6 +16,7 @@
     intro: [
       { id: 'a', dur: 22, delay: 0, keyframes: 'goosePathIntroA', start: 'translate(12vw, 72vh)' },
       { id: 'b', dur: 26, delay: 2, keyframes: 'goosePathIntroB', start: 'translate(82vw, 28vh)' },
+      { id: 'c', dur: 24, delay: 4, keyframes: 'goosePathIntroC', start: 'translate(45vw, 55vh)' },
     ],
     home: [
       { id: 'a', dur: 24, delay: 0, keyframes: 'goosePathHomeA', start: 'translate(6vw, 24vh)' },
@@ -24,13 +25,15 @@
       { id: 'd', dur: 32, delay: 0.5, keyframes: 'goosePathHomeD', start: 'translate(75vw, 18vh)' },
       { id: 'e', dur: 26, delay: 2, keyframes: 'goosePathHomeE', start: 'translate(48vw, 45vh)' },
       { id: 'f', dur: 22, delay: 4, keyframes: 'goosePathHomeF', start: 'translate(15vw, 42vh)' },
+      { id: 'g', dur: 25, delay: 1, keyframes: 'goosePathHomeG', start: 'translate(58vw, 75vh)' },
+      { id: 'h', dur: 30, delay: 2.5, keyframes: 'goosePathHomeH', start: 'translate(35vw, 15vh)' },
     ],
   };
 
   let field = null;
   let facts = [];
   let recentFacts = [];
-  const RECENT_LIMIT = 8;
+  const RECENT_LIMIT = 12;
   let activeGoose = null;
   let announceFn = null;
   let reducedMotion = false;

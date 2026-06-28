@@ -20,8 +20,8 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20260628b">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=20260628c">
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -216,18 +216,50 @@
   </div>
 
   <!-- Letter -->
-  <div id="letter-modal" class="letter-modal hidden" role="dialog" aria-modal="true" aria-labelledby="letter-title" hidden>
+  <div id="letter-modal" class="letter-modal hidden" role="dialog" aria-modal="true" aria-labelledby="letter-ink" hidden>
     <div class="letter-modal__backdrop" data-close-letter></div>
-    <div class="letter-modal__panel">
-      <button type="button" class="letter-modal__close" data-close-letter aria-label="Close">
-        <span aria-hidden="true">×</span>
-      </button>
-      <div class="letter">
-        <p class="letter__eyebrow">Happy 19th Birthday</p>
-        <h2 id="letter-title" class="letter__title"></h2>
-        <div id="letter-body" class="letter__body"></div>
-        <p class="letter__signoff">Aarav ♥</p>
+
+    <div class="letter-scene">
+      <div class="letter-scene__vignette" aria-hidden="true"></div>
+      <div class="letter-scene__dust" aria-hidden="true"></div>
+
+      <div class="letter-envelope-stage" id="letter-envelope-stage">
+        <p class="letter-scene__label">A letter for you</p>
+        <button type="button" class="letter-envelope" id="letter-open-btn" aria-label="Open your letter">
+          <span class="letter-envelope__shadow" aria-hidden="true"></span>
+          <span class="letter-envelope__body" aria-hidden="true"></span>
+          <span class="letter-envelope__liner" aria-hidden="true"></span>
+          <span class="letter-envelope__flap" id="letter-flap" aria-hidden="true"></span>
+          <span class="letter-envelope__string" id="letter-string" aria-hidden="true">
+            <span class="letter-envelope__knot"></span>
+          </span>
+          <span class="letter-envelope__wax" aria-hidden="true">N</span>
+          <span class="letter-envelope__name">For Chikki</span>
+        </button>
+        <p class="letter-envelope__hint" id="letter-hint">tap the envelope</p>
       </div>
+
+      <div class="letter-messenger" id="letter-messenger" aria-hidden="true">
+        <svg class="letter-messenger__goose" viewBox="0 0 52 44" width="80" height="68" aria-hidden="true">
+          <ellipse cx="22" cy="30" rx="15" ry="11" fill="#f7f6f0"/>
+          <ellipse class="letter-messenger__wing" cx="18" cy="28" rx="7" ry="5" fill="#ebe9df" transform="rotate(-12 18 28)"/>
+          <path d="M22 22 C24 10 30 6 34 12" stroke="#f7f6f0" stroke-width="7" fill="none" stroke-linecap="round"/>
+          <circle cx="35" cy="11" r="6" fill="#f7f6f0"/>
+          <circle cx="37" cy="10" r="1.4" fill="#2a2a2a"/>
+          <path d="M40 9 L47 7 L40 14 Z" fill="#f0a030"/>
+        </svg>
+      </div>
+
+      <article class="letter-paper hidden" id="letter-paper" aria-labelledby="letter-ink">
+        <button type="button" class="letter-paper__close" data-close-letter aria-label="Close letter">
+          <span aria-hidden="true">×</span>
+        </button>
+        <div class="letter-paper__sheet">
+          <p class="letter-paper__date" id="letter-date" aria-hidden="true"></p>
+          <p class="letter-paper__ink" id="letter-ink" aria-live="polite"></p>
+          <p class="letter-paper__signoff hidden" id="letter-signoff">Aarav ♥</p>
+        </div>
+      </article>
     </div>
   </div>
 
@@ -237,8 +269,8 @@
   <div class="ambient-bg" aria-hidden="true"></div>
   <div class="film-grain" aria-hidden="true"></div>
 
-  <script src="js/catalog.js?v=20260628b"></script>
-  <script src="js/gooses.js?v=20260628b"></script>
-  <script src="js/app.js?v=20260628b"></script>
+  <script src="js/catalog.js?v=20260628c"></script>
+  <script src="js/gooses.js?v=20260628c"></script>
+  <script src="js/app.js?v=20260628c"></script>
 </body>
 </html>

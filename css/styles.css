@@ -817,7 +817,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
 }
 
 .player--contain .player__layer-bg {
-  inset: 0;
+  inset: 8% 6%;
   background-size: contain;
   z-index: 1;
 }

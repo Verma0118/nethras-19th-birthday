@@ -17,7 +17,7 @@ Drop pairs into `images/shows/`:
 | Show | Files |
 |------|-------|
 | Us: The Series | `01-a.jpg`, `01-b.jpg` |
-| My Places | `places/01.jpg` through `places/23.jpg` (23 photos of us out together) |
+| Our Places | `places/01.jpg` through `places/23.jpg` (23 photos of us out together) |
 | That Smile | `03-a.jpg`, `03-b.jpg` |
 | My FaceTime Baby | `facetime/01.jpg` through `facetime/13.jpg` (13 FaceTime screenshots) |
 

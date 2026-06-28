@@ -31,7 +31,10 @@
   const playerLayerB = document.getElementById('player-layer-b');
   const playerTitle = document.getElementById('player-title');
   const playerEpisode = document.getElementById('player-episode');
-  const playerCaption = document.getElementById('player-caption');
+  const playerPreroll = document.getElementById('player-preroll');
+  const playerPrerollTitle = document.getElementById('player-preroll-title');
+  const playerPrerollText = document.getElementById('player-preroll-text');
+  const playerPrerollFill = document.getElementById('player-preroll-fill');
   const playerProgressFill = document.getElementById('player-progress-fill');
   const playerProgress = document.getElementById('player-progress');
   const playerDots = document.getElementById('player-dots');
@@ -442,6 +445,46 @@
     }
   }
 
+  const PREROLL_DURATION = 3200;
+
+  async function runPlayerPreroll(show) {
+    if (!show.intro) return;
+
+    const bar = playerPreroll.querySelector('.player__preroll-bar');
+    playerPrerollTitle.textContent = show.title;
+    playerPrerollText.textContent = show.intro;
+    playerPrerollFill.style.width = '0%';
+    bar.setAttribute('aria-valuenow', '0');
+    playerPreroll.hidden = false;
+    player.classList.add('player--preroll');
+
+    const preloadFirst = loadImage(show.scenes[0].image);
+    const duration = reducedMotion ? 800 : PREROLL_DURATION;
+    const start = performance.now();
+
+    await new Promise((resolve) => {
+      const tick = (now) => {
+        const pct = Math.min((now - start) / duration, 1);
+        playerPrerollFill.style.width = `${pct * 100}%`;
+        bar.setAttribute('aria-valuenow', String(Math.round(pct * 100)));
+        if (pct < 1) requestAnimationFrame(tick);
+        else resolve();
+      };
+      if (!reducedMotion) requestAnimationFrame(tick);
+      else {
+        playerPrerollFill.style.width = '100%';
+        bar.setAttribute('aria-valuenow', '100');
+        resolve();
+      }
+    });
+
+    await preloadFirst;
+    await wait(reducedMotion ? 100 : 350);
+    player.classList.remove('player--preroll');
+    await wait(reducedMotion ? 0 : 450);
+    playerPreroll.hidden = true;
+  }
+
   async function setPlayerScene(index, direction) {
     if (!playerState.show || playerState.transitioning) return;
     const scenes = playerState.show.scenes;
@@ -466,13 +509,12 @@
     incoming.classList.remove('is-active', 'is-exit', 'slide-left', 'slide-right');
 
     await applyBgToLayerSync(incoming, scene.image, `${playerState.show.id}-${index}`);
-    incoming.setAttribute('aria-label', scene.caption);
+    incoming.setAttribute('aria-label', `${playerState.show.title}, episode ${index + 1}`);
 
     if (!reducedMotion && direction) {
       incoming.classList.add(direction > 0 ? 'slide-right' : 'slide-left');
     }
 
-    playerCaption.classList.remove('is-visible');
     await wait(reducedMotion ? 0 : 60);
 
     incoming.classList.add('is-active');
@@ -481,11 +523,9 @@
 
     playerState.sceneIndex = index;
     playerState.activeLayer = playerState.activeLayer === 'a' ? 'b' : 'a';
-    playerCaption.textContent = scene.caption;
     updateProgressUI();
 
     await wait(reducedMotion ? 0 : 680);
-    playerCaption.classList.add('is-visible');
     playerBuffer.classList.remove('is-visible');
     playerState.transitioning = false;
 
@@ -545,24 +585,31 @@
     playerState.show = show;
     playerState.sceneIndex = 0;
     playerState.activeLayer = 'a';
-    playerState.playing = !reducedMotion;
+    playerState.playing = false;
 
     playerTitle.textContent = show.title;
-    playerToggle.querySelector('.player__pause-icon').classList.toggle('hidden', !playerState.playing);
-    playerToggle.querySelector('.player__play-icon').classList.toggle('hidden', playerState.playing);
+    playerToggle.querySelector('.player__pause-icon').classList.remove('hidden');
+    playerToggle.querySelector('.player__play-icon').classList.add('hidden');
 
     player.classList.toggle('player--contain', show.fit === 'contain');
     player.hidden = false;
-    player.classList.remove('hidden');
+    player.classList.remove('hidden', 'player--preroll');
     document.body.classList.add('player-open');
     await wait(20);
     player.classList.add('player--open');
-    showPlayerChrome();
 
     playerLayerA.className = 'player__layer player__layer--a';
     playerLayerB.className = 'player__layer player__layer--b';
     getLayerBg(playerLayerA).className = 'player__layer-bg';
     getLayerBg(playerLayerB).className = 'player__layer-bg';
+
+    await runPlayerPreroll(show);
+
+    playerState.playing = !reducedMotion;
+    playerToggle.querySelector('.player__pause-icon').classList.toggle('hidden', !playerState.playing);
+    playerToggle.querySelector('.player__play-icon').classList.toggle('hidden', playerState.playing);
+    showPlayerChrome();
+
     await setPlayerScene(0, 0);
     if (playerState.playing) scheduleNextScene();
     announce(`Now playing ${show.title}`);
@@ -573,7 +620,8 @@
     stopPlayerTimer();
     window.clearTimeout(chromeHideTimer);
     playerState.show = null;
-    player.classList.remove('player--open', 'player--ui-hidden', 'player--contain');
+    player.classList.remove('player--open', 'player--ui-hidden', 'player--contain', 'player--preroll');
+    playerPreroll.hidden = true;
     await wait(reducedMotion ? 0 : 400);
     player.classList.add('hidden');
     player.hidden = true;

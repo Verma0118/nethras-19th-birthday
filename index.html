@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20260627c">
+  <link rel="stylesheet" href="css/styles.css?v=20260627d">
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -159,7 +159,6 @@
       </header>
 
       <footer class="player__bottom">
-        <p id="player-caption" class="player__caption"></p>
         <div class="player__progress-wrap">
           <div class="player__progress" id="player-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
             <div class="player__progress-fill" id="player-progress-fill"></div>
@@ -182,6 +181,17 @@
 
     <div class="player__buffer" id="player-buffer" aria-hidden="true">
       <div class="player__spinner"></div>
+    </div>
+
+    <div class="player__preroll" id="player-preroll" hidden aria-live="polite">
+      <div class="player__preroll-inner">
+        <p class="player__preroll-eyebrow">Now Playing</p>
+        <h2 class="player__preroll-title" id="player-preroll-title"></h2>
+        <p class="player__preroll-text" id="player-preroll-text"></p>
+        <div class="player__preroll-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Starting">
+          <div class="player__preroll-fill" id="player-preroll-fill"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -225,7 +235,7 @@
   <div class="ambient-bg" aria-hidden="true"></div>
   <div class="film-grain" aria-hidden="true"></div>
 
-  <script src="js/catalog.js?v=20260627c"></script>
-  <script src="js/app.js?v=20260627c"></script>
+  <script src="js/catalog.js?v=20260627d"></script>
+  <script src="js/app.js?v=20260627d"></script>
 </body>
 </html>

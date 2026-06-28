@@ -18,7 +18,7 @@ Drop pairs into `images/shows/`:
 |------|-------|
 | Us: The Series | `01-a.jpg`, `01-b.jpg` |
 | Our Places | `places/01.jpg` through `places/23.jpg` (23 photos of us out together) |
-| That Smile | `03-a.jpg`, `03-b.jpg` |
+| That Smile | `smile/01.jpg` through `smile/08.jpg` (8 photos) |
 | My FaceTime Baby | `facetime/01.jpg` through `facetime/13.jpg` (13 FaceTime screenshots) |
 
 When she taps **Play**, each movie cycles through its 2 photos with captions.

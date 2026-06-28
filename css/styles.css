@@ -924,15 +924,85 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
 
 .player__episode { margin: 0; font-size: 0.78rem; color: var(--text-muted); }
 
-.player__caption {
-  margin: 0 0 1.25rem; font-size: clamp(1.05rem, 2.5vw, 1.25rem);
-  line-height: 1.6; max-width: 52ch;
-  opacity: 0; transform: translateY(16px);
-  transition: opacity 0.55s var(--ease), transform 0.55s var(--ease);
-  text-shadow: 0 2px 16px rgba(0,0,0,0.9);
+.player__preroll {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  background: radial-gradient(ellipse at center, rgba(20, 0, 4, 0.97) 0%, #000 70%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.55s var(--ease);
 }
 
-.player__caption.is-visible { opacity: 1; transform: translateY(0); }
+.player__preroll:not([hidden]) { display: grid; }
+
+.player--preroll .player__preroll {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.player--preroll .player__chrome {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.player__preroll-inner {
+  width: min(520px, 92vw);
+  text-align: center;
+  animation: prerollIn 0.7s var(--ease) both;
+}
+
+@keyframes prerollIn {
+  from { opacity: 0; transform: translateY(18px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.player__preroll-eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.player__preroll-title {
+  margin: 0 0 1rem;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 8vw, 3rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+
+.player__preroll-text {
+  margin: 0 0 2rem;
+  font-size: clamp(1rem, 3.5vw, 1.15rem);
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+.player__preroll-bar {
+  width: min(280px, 80vw);
+  height: 4px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.player__preroll-fill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #b20710, var(--accent), #ff6b75);
+  border-radius: inherit;
+  box-shadow: 0 0 14px var(--accent-glow);
+}
+
+.player__caption { display: none; }
 
 .player__progress-wrap { margin-bottom: 1rem; }
 

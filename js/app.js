@@ -81,6 +81,14 @@
     window.setTimeout(() => { liveRegion.textContent = msg; }, 30);
   }
 
+  function showGeese(screen) {
+    if (window.GooseField) GooseField.show(screen);
+  }
+
+  function hideGeese() {
+    if (window.GooseField) GooseField.hide();
+  }
+
   function wait(ms) {
     return new Promise((r) => window.setTimeout(r, reducedMotion ? 0 : ms));
   }
@@ -275,6 +283,7 @@
     intro.classList.remove('hidden');
     intro.classList.add('screen--enter');
     announce('Choose your profile');
+    showGeese('intro');
   }
 
   function renderProfiles() {
@@ -581,6 +590,7 @@
     const show = getShow(showId);
     if (!show || show.isLetter || !show.scenes.length) return;
 
+    hideGeese();
     lastFocus = document.activeElement;
     playerState.show = show;
     playerState.sceneIndex = 0;
@@ -628,11 +638,13 @@
     document.body.classList.remove('player-open');
     if (lastFocus) lastFocus.focus();
     announce('Back to browse');
+    if (!home.hidden) showGeese('home');
   }
 
   function openInfo(showId) {
     const show = getShow(showId);
     if (!show || show.isLetter) return;
+    hideGeese();
     infoShowId = showId;
     lastFocus = document.activeElement;
     infoTitle.textContent = show.title;
@@ -655,10 +667,12 @@
       infoPanel.hidden = true;
       document.body.classList.remove('modal-open');
       if (lastFocus) lastFocus.focus();
+      if (!home.hidden) showGeese('home');
     }, reducedMotion ? 0 : 320);
   }
 
   function openLetter() {
+    hideGeese();
     lastFocus = document.activeElement;
     letterTitle.textContent = CATALOG.letter.title;
     letterBody.innerHTML = CATALOG.letter.body
@@ -679,6 +693,7 @@
       letterModal.hidden = true;
       document.body.classList.remove('modal-open');
       if (lastFocus) lastFocus.focus();
+      if (!home.hidden) showGeese('home');
     }, reducedMotion ? 0 : 320);
   }
 
@@ -690,6 +705,7 @@
     const btn = document.querySelector('[data-profile="nethra"]');
     btn.disabled = true;
     btn.classList.add('profile--entering');
+    hideGeese();
     intro.classList.add('screen--exit');
     await wait(reducedMotion ? 0 : 650);
 
@@ -700,6 +716,7 @@
     home.classList.add('screen--enter');
     catalogEl.classList.add('catalog--visible');
     announce(`Welcome to ${CATALOG.brand}`);
+    showGeese('home');
     window.setTimeout(() => heroPlay.focus(), 300);
   }
 
@@ -776,6 +793,13 @@
       renderCatalog();
       bindEvents();
       setupNavScroll();
+      if (window.GooseField && CATALOG.geese) {
+        GooseField.init({ facts: CATALOG.geese.facts, announce });
+        const hint = document.getElementById('intro-hint');
+        if (hint && CATALOG.geese.hint) {
+          hint.textContent = 'Tap your profile to continue · ' + CATALOG.geese.hint;
+        }
+      }
       await runLoader();
     } catch (err) {
       console.error(err);

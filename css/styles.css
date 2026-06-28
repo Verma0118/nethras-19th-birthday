@@ -56,7 +56,8 @@ body {
   inset: 0;
   z-index: -1;
   background:
-    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(229, 9, 20, 0.08), transparent 50%),
+    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(229, 9, 20, 0.1), transparent 50%),
+    radial-gradient(ellipse 55% 45% at 88% 92%, rgba(240, 160, 48, 0.06), transparent 45%),
     radial-gradient(ellipse 60% 40% at 90% 100%, rgba(99, 60, 180, 0.05), transparent 45%),
     var(--bg);
 }
@@ -385,7 +386,9 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
 .screen--intro {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 2rem 1.5rem 4rem; position: relative; overflow: hidden;
-  background: radial-gradient(ellipse at 50% 0%, #2a1018 0%, #080808 60%);
+  background:
+    radial-gradient(ellipse at 50% 0%, #2a1018 0%, #080808 60%),
+    radial-gradient(ellipse at 80% 90%, rgba(240, 160, 48, 0.04), transparent 50%);
 }
 
 .screen--enter { animation: screenEnter var(--dur-slow) var(--ease) both; }
@@ -492,7 +495,15 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
 
 .intro__hint {
   margin: 2.5rem 0 0; font-size: 0.85rem; color: var(--text-dim);
+  max-width: 28ch; text-align: center; line-height: 1.5;
   animation: fadeUp 0.8s 0.6s var(--ease) both;
+}
+
+/* ─── HOME ─── */
+.screen--home {
+  background:
+    radial-gradient(ellipse 100% 40% at 50% 0%, rgba(229, 9, 20, 0.06), transparent 55%),
+    radial-gradient(ellipse 50% 30% at 100% 50%, rgba(240, 160, 48, 0.03), transparent 50%);
 }
 
 @keyframes fadeUp {
@@ -507,8 +518,10 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
 }
 
 .nav--scrolled {
-  background: rgba(5,5,5,0.92); backdrop-filter: blur(16px);
-  box-shadow: 0 1px 0 rgba(255,255,255,0.05);
+  background: rgba(5, 5, 5, 0.88);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.06), 0 12px 40px rgba(0,0,0,0.45);
 }
 
 .nav__inner {
@@ -577,7 +590,18 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
 
 .hero__eyebrow {
   margin: 0 0 0.6rem; font-size: 0.75rem; font-weight: 700;
-  letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent);
+  letter-spacing: 0.16em; text-transform: uppercase;
+  background: linear-gradient(90deg, var(--accent), #ff7a7a, var(--accent));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: eyebrowShimmer 4s ease-in-out infinite;
+}
+
+@keyframes eyebrowShimmer {
+  0%, 100% { background-position: 0% center; }
+  50% { background-position: 100% center; }
 }
 
 .hero__title {
@@ -682,7 +706,10 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
 
 .tile:hover, .tile:focus-visible {
   transform: translateY(-10px) scale(1.025);
-  box-shadow: 0 32px 64px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08);
+  box-shadow:
+    0 32px 64px rgba(0,0,0,0.55),
+    0 0 0 1px rgba(255,255,255,0.08),
+    0 0 40px rgba(229, 9, 20, 0.08);
   border-color: rgba(255,255,255,0.16);
 }
 
@@ -1210,4 +1237,199 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
 
 @media (min-width: 900px) {
   .catalog__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ─── FLOATING GOOSES ─── */
+.goose-field {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.goose {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  pointer-events: auto;
+  padding: 0.35rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  animation-duration: var(--goose-dur, 24s);
+  animation-delay: var(--goose-delay, 0s);
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  transform-origin: center center;
+  transition: transform 0.25s var(--spring);
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35));
+}
+
+.goose:hover,
+.goose:focus-visible {
+  filter: drop-shadow(0 10px 20px rgba(240, 160, 48, 0.25));
+}
+
+.goose:hover .goose__sprite,
+.goose:focus-visible .goose__sprite {
+  transform: scale(1.12);
+}
+
+.goose--happy .goose__sprite {
+  animation: gooseHonk 0.45s var(--spring);
+}
+
+@keyframes gooseHonk {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  30% { transform: rotate(-8deg) translateY(-4px); }
+  60% { transform: rotate(6deg) translateY(-2px); }
+}
+
+.goose__sprite {
+  display: block;
+  position: relative;
+  z-index: 2;
+  transition: transform 0.25s var(--spring);
+}
+
+.goose__wing {
+  transform-origin: 18px 28px;
+  animation: wingFlap 0.55s ease-in-out infinite alternate;
+}
+
+@keyframes wingFlap {
+  from { transform: rotate(-12deg) scaleY(1); }
+  to { transform: rotate(-28deg) scaleY(0.92); }
+}
+
+.goose__trail {
+  position: absolute;
+  right: 62%;
+  top: 28%;
+  z-index: 0;
+  opacity: 0.75;
+  transform: rotate(-18deg);
+  animation: trailBob 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.goose__trail-svg path {
+  animation: trailDash 1.2s linear infinite;
+}
+
+@keyframes trailDash {
+  to { stroke-dashoffset: -18; }
+}
+
+@keyframes trailBob {
+  0%, 100% { opacity: 0.55; transform: rotate(-18deg) translateY(0); }
+  50% { opacity: 0.9; transform: rotate(-12deg) translateY(-3px); }
+}
+
+.goose__bubble {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  z-index: 10;
+  min-width: min(240px, 70vw);
+  max-width: min(280px, 82vw);
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.97);
+  color: #1a1a1a;
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.45;
+  text-align: left;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transform: translateX(-50%) translateY(6px) scale(0.88);
+  transition:
+    opacity 0.28s var(--ease),
+    transform 0.32s var(--spring);
+  pointer-events: none;
+}
+
+.goose__bubble--open {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+
+.goose__bubble-tail {
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.97);
+  transform: translateX(-50%) rotate(45deg);
+  border-radius: 2px;
+}
+
+.goose__bubble-text { position: relative; z-index: 1; }
+
+@keyframes goosePathIntroA {
+  0% { transform: translate(12vw, 72vh) scaleX(1); }
+  50% { transform: translate(48vw, 18vh) scaleX(1); }
+  100% { transform: translate(78vw, 55vh) scaleX(-1); }
+}
+
+@keyframes goosePathIntroB {
+  0% { transform: translate(82vw, 28vh) scaleX(-1); }
+  50% { transform: translate(38vw, 68vh) scaleX(-1); }
+  100% { transform: translate(14vw, 32vh) scaleX(1); }
+}
+
+@keyframes goosePathHomeA {
+  0% { transform: translate(6vw, 24vh) scaleX(1); }
+  50% { transform: translate(62vw, 14vh) scaleX(1); }
+  100% { transform: translate(88vw, 38vh) scaleX(-1); }
+}
+
+@keyframes goosePathHomeB {
+  0% { transform: translate(90vw, 62vh) scaleX(-1); }
+  50% { transform: translate(42vw, 78vh) scaleX(-1); }
+  100% { transform: translate(8vw, 48vh) scaleX(1); }
+}
+
+@keyframes goosePathHomeC {
+  0% { transform: translate(22vw, 82vh) scaleX(1); }
+  50% { transform: translate(72vw, 68vh) scaleX(-1); }
+  100% { transform: translate(55vw, 22vh) scaleX(-1); }
+}
+
+@keyframes goosePathHomeD {
+  0% { transform: translate(75vw, 18vh) scaleX(-1); }
+  50% { transform: translate(18vw, 38vh) scaleX(1); }
+  100% { transform: translate(35vw, 72vh) scaleX(1); }
+}
+
+@media (max-width: 640px) {
+  .goose__art { width: 42px; height: 36px; }
+  .goose__bubble { font-size: 0.78rem; min-width: min(200px, 76vw); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .goose {
+    animation: none !important;
+  }
+
+  .goose[data-path="a"] { transform: translate(12vw, 22vh); }
+  .goose[data-path="b"] { transform: translate(78vw, 30vh) scaleX(-1); }
+  .goose[data-path="c"] { transform: translate(20vw, 70vh); }
+  .goose[data-path="d"] { transform: translate(72vw, 68vh) scaleX(-1); }
+
+  .goose__trail,
+  .goose__wing,
+  .hero__eyebrow {
+    animation: none !important;
+  }
+
+  .hero__eyebrow {
+    -webkit-text-fill-color: var(--accent);
+    color: var(--accent);
+  }
 }

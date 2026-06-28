@@ -169,4 +169,26 @@ const CATALOG = {
     ],
     welcome: 'Welcome to Nethraflix ♥',
   },
+
+  geese: {
+    hint: 'Psst — little gooses are floating around. Tap one!',
+    facts: [
+      'Did you know geese mate for life? Kind of like us, if you ask me.',
+      'Did you know a baby goose is called a gosling?',
+      'Did you know geese fly in a V so the whole flock has an easier time?',
+      'Did you know a group of geese on the ground is called a gaggle?',
+      'Did you know geese can live up to 25 years?',
+      'Did you know geese have been domesticated for over 4,000 years?',
+      'Did you know geese sometimes sleep with one eye open?',
+      'Did you know male geese are called ganders?',
+      'Did you know geese are surprisingly good guard animals?',
+      'Did you know I put little gooses on this site because you love them?',
+      'Did you know you are the only person I would build a whole Netflix for?',
+      'Did you know your smile is literally my favorite view?',
+      'Did you know I save every FaceTime screenshot of you? Every single one.',
+      'Did you know six months with you already feels like the best plot twist ever?',
+      'Did you know chikki is my favorite nickname in the entire universe?',
+      'Did you know I think about you even when I am pretending to be productive?',
+    ],
+  },
 };

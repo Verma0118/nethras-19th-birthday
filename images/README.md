@@ -1,6 +1,6 @@
 # Adding Your Photos
 
-**10 photos total** for the other movies (2 episodes each). FaceTime Favorites has **13 photos** in its own folder.
+**8 photos total** for the other movies (2 episodes each). My FaceTime Baby has **13 photos** in its own folder.
 
 ## Required
 
@@ -17,10 +17,9 @@ Drop pairs into `images/shows/`:
 | Show | Files |
 |------|-------|
 | Us: The Series | `01-a.jpg`, `01-b.jpg` |
-| First Adventures | `02-a.jpg`, `02-b.jpg` |
+| My Places | `places/01.jpg` through `places/23.jpg` (23 photos of us out together) |
 | That Smile | `03-a.jpg`, `03-b.jpg` |
-| FaceTime Favorites | `facetime/01.jpg` through `facetime/13.jpg` (13 FaceTime screenshots) |
-| Why I Love You | `05-a.jpg`, `05-b.jpg` |
+| My FaceTime Baby | `facetime/01.jpg` through `facetime/13.jpg` (13 FaceTime screenshots) |
 
 When she taps **Play**, each movie cycles through its 2 photos with captions.
 

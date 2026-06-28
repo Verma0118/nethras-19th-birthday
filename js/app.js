@@ -111,9 +111,11 @@
     const result = await loadImage(src);
     if (result.ok) {
       bg.style.backgroundImage = `url("${result.src}")`;
+      layer.style.setProperty('--scene-bg', `url("${result.src}")`);
       bg.classList.remove(fb);
     } else {
       bg.style.backgroundImage = '';
+      layer.style.removeProperty('--scene-bg');
     }
   }
 
@@ -172,15 +174,16 @@
     loadImage(show.scenes[index].image);
   }
 
-  function applyImageToEl(element, src, alt, seed) {
+  function applyImageToEl(element, src, alt, seed, fit = 'cover') {
     const fb = placeholderClass(seed);
     element.classList.add(fb);
     element.setAttribute('aria-label', alt || '');
     loadImage(src).then(({ ok, src: resolved }) => {
       if (ok) {
         element.style.backgroundImage = `url("${resolved}")`;
-        element.style.backgroundSize = 'cover';
+        element.style.backgroundSize = fit;
         element.style.backgroundPosition = 'center';
+        element.style.backgroundRepeat = 'no-repeat';
         element.classList.remove(fb);
       }
     });
@@ -298,7 +301,9 @@
   function createCard(show) {
     const card = document.createElement('button');
     card.type = 'button';
-    card.className = 'tile' + (show.isLetter ? ' tile--letter' : '');
+    card.className = 'tile'
+      + (show.isLetter ? ' tile--letter' : '')
+      + (show.wide ? ' tile--wide' : '');
     card.dataset.showId = show.id;
     card.style.setProperty('--tile-delay', `${tileIndex * 70}ms`);
     tileIndex += 1;
@@ -308,8 +313,8 @@
     card.setAttribute('aria-label', `${show.title}. ${show.synopsis}. ${epLabel}`);
 
     const poster = document.createElement('div');
-    poster.className = 'tile__poster';
-    applyImageToEl(poster, show.poster, show.title, show.id);
+    poster.className = 'tile__poster' + (show.fit === 'contain' ? ' tile__poster--contain' : '');
+    applyImageToEl(poster, show.poster, show.title, show.id, show.fit || 'cover');
 
     const shine = document.createElement('div');
     shine.className = 'tile__shine';
@@ -546,6 +551,7 @@
     playerToggle.querySelector('.player__pause-icon').classList.toggle('hidden', !playerState.playing);
     playerToggle.querySelector('.player__play-icon').classList.toggle('hidden', playerState.playing);
 
+    player.classList.toggle('player--contain', show.fit === 'contain');
     player.hidden = false;
     player.classList.remove('hidden');
     document.body.classList.add('player-open');
@@ -567,7 +573,7 @@
     stopPlayerTimer();
     window.clearTimeout(chromeHideTimer);
     playerState.show = null;
-    player.classList.remove('player--open', 'player--ui-hidden');
+    player.classList.remove('player--open', 'player--ui-hidden', 'player--contain');
     await wait(reducedMotion ? 0 : 400);
     player.classList.add('hidden');
     player.hidden = true;
@@ -584,7 +590,8 @@
     infoTitle.textContent = show.title;
     infoMeta.textContent = show.meta;
     infoSynopsis.textContent = show.synopsis;
-    applyImageToEl(infoPoster, show.poster, show.title, show.id);
+    applyImageToEl(infoPoster, show.poster, show.title, show.id, show.fit || 'cover');
+    infoPoster.classList.toggle('info-panel__poster--contain', show.fit === 'contain');
     infoPanel.hidden = false;
     infoPanel.classList.remove('hidden');
     document.body.classList.add('modal-open');

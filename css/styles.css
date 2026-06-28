@@ -688,10 +688,17 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
 
 .tile__poster {
   position: relative; aspect-ratio: 16/10;
-  background: #1a1012 center/cover;
+  background-color: #1a1012;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
   overflow: hidden;
   transition: transform 0.7s var(--ease);
   will-change: transform;
+}
+
+.tile__poster--contain {
+  background-color: #111;
 }
 
 .tile:hover .tile__poster,
@@ -731,6 +738,22 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
 }
 
 .tile--letter:hover { border-color: rgba(229,9,20,0.4); box-shadow: 0 20px 50px rgba(229,9,20,0.15), var(--shadow); }
+
+.tile--wide {
+  grid-column: 1 / -1;
+}
+
+.tile--wide .tile__poster {
+  aspect-ratio: 21 / 8;
+}
+
+.tile--wide .tile__body {
+  padding: 1.1rem 1.5rem 1.35rem;
+}
+
+.tile--wide .tile__title {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+}
 
 .tile__body {
   padding: 1rem 1.15rem 1.2rem;
@@ -772,9 +795,48 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
 
 .player__layer-bg {
   position: absolute; inset: -6%;
-  background: #111 center/cover;
+  background-color: #111;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
   transform: scale(1);
   will-change: transform;
+}
+
+.player--contain .player__layer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--scene-bg);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  filter: blur(42px) brightness(0.38) saturate(1.15);
+  transform: scale(1.08);
+  z-index: 0;
+}
+
+.player--contain .player__layer-bg {
+  inset: 0;
+  background-size: contain;
+  z-index: 1;
+}
+
+.player--contain .player__layer.is-active .player__layer-bg {
+  animation: playerKenBurnsContain 10s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+@keyframes playerKenBurnsContain {
+  from { transform: scale(1); }
+  to { transform: scale(1.03); }
+}
+
+.player--contain .player__layer.slide-right.is-active .player__layer-bg {
+  animation: slideInRightBg 0.75s var(--ease) forwards, playerKenBurnsContain 10s 0.75s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+.player--contain .player__layer.slide-left.is-active .player__layer-bg {
+  animation: slideInLeftBg 0.75s var(--ease) forwards, playerKenBurnsContain 10s 0.75s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
 }
 
 .player__layer.is-active .player__layer-bg {
@@ -977,7 +1039,15 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
 
 .info-panel__poster {
   width: 100%; aspect-ratio: 16/10; border-radius: var(--radius);
-  background: #1a1012 center/cover; margin-bottom: 1.25rem;
+  background-color: #1a1012;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  margin-bottom: 1.25rem;
+}
+
+.info-panel__poster--contain {
+  background-color: #111;
 }
 
 .info-panel__title {

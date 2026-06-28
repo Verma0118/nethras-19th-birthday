@@ -1185,9 +1185,55 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   place-items: center;
   overflow: hidden;
   background:
-    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(255, 220, 160, 0.12), transparent 60%),
-    radial-gradient(ellipse 100% 80% at 50% 100%, rgba(80, 50, 30, 0.35), transparent 55%),
+    radial-gradient(ellipse 55% 45% at 50% 38%, rgba(255, 200, 120, 0.14), transparent 65%),
+    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(255, 220, 160, 0.1), transparent 60%),
+    radial-gradient(ellipse 100% 80% at 50% 100%, rgba(80, 50, 30, 0.4), transparent 55%),
     linear-gradient(165deg, #1a1410 0%, #0d0a08 45%, #120e0c 100%);
+}
+
+.letter-scene__glow {
+  position: absolute;
+  left: 50%;
+  top: 28%;
+  width: min(420px, 70vw);
+  height: min(320px, 50vh);
+  transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse, rgba(255, 190, 100, 0.18) 0%, transparent 70%);
+  filter: blur(18px);
+  animation: candleFlicker 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes candleFlicker {
+  0%, 100% { opacity: 0.75; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); }
+}
+
+.letter-scene__desk {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 38%;
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.35) 30%),
+    linear-gradient(180deg, #3d2818 0%, #2a1a10 100%);
+  border-top: 1px solid rgba(255, 200, 140, 0.08);
+  pointer-events: none;
+}
+
+.letter-scene__desk::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0,
+    transparent 48px,
+    rgba(0, 0, 0, 0.06) 48px,
+    rgba(0, 0, 0, 0.06) 50px
+  );
+  opacity: 0.5;
 }
 
 .letter-scene__vignette {
@@ -1227,9 +1273,10 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   transition: opacity 0.5s var(--ease), transform 0.6s var(--ease);
 }
 
-.letter-modal--pull .letter-envelope-stage {
+.letter-modal--unfold .letter-envelope-stage,
+.letter-modal--reading .letter-envelope-stage {
   opacity: 0;
-  transform: translateY(30px) scale(0.92);
+  transform: translateY(24px) scale(0.94);
   pointer-events: none;
 }
 
@@ -1242,6 +1289,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   background: none;
   cursor: pointer;
   transition: transform 0.35s var(--spring);
+  perspective: 700px;
 }
 
 .letter-envelope:hover,
@@ -1264,8 +1312,43 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   position: absolute;
   inset: 18% 0 0;
   border-radius: 4px 4px 6px 6px;
-  background: linear-gradient(160deg, #f3e6cf 0%, #e8d4b0 55%, #dcc89a 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 16px 40px rgba(0, 0, 0, 0.35);
+  background:
+    linear-gradient(160deg, #f3e6cf 0%, #e8d4b0 55%, #dcc89a 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -20px 40px rgba(120, 80, 40, 0.08),
+    0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+.letter-envelope__slip {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 30%;
+  height: 52%;
+  z-index: 2;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #fffdf8, #f5ebda);
+  border: 1px solid rgba(120, 90, 50, 0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(8%);
+  opacity: 0;
+  transition: opacity 0.4s var(--ease);
+}
+
+.letter-modal--flap .letter-envelope__slip,
+.letter-modal--feet-pull .letter-envelope__slip,
+.letter-modal--unfold .letter-envelope__slip {
+  opacity: 1;
+}
+
+.letter-modal--feet-pull .letter-envelope__slip {
+  animation: slipRise 1.05s var(--ease) forwards;
+}
+
+@keyframes slipRise {
+  0% { transform: translateY(8%); }
+  100% { transform: translateY(-95%); }
 }
 
 .letter-envelope__liner {
@@ -1293,8 +1376,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   z-index: 3;
 }
 
-.letter-modal--open-flap .letter-envelope__flap {
-  transform: rotateX(180deg);
+.letter-modal--flap .letter-envelope__flap {
+  transform: perspective(400px) rotateX(175deg);
 }
 
 .letter-envelope__string {
@@ -1321,9 +1404,10 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.2), 0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
-.letter-modal--untie .letter-envelope__string {
+.letter-modal--tug .letter-envelope__string,
+.letter-modal--grab .letter-envelope__string {
   opacity: 0;
-  transform: translateX(-50%) scaleY(0.3);
+  transform: translateX(-50%) scaleY(0.2);
 }
 
 .letter-envelope__wax {
@@ -1346,9 +1430,14 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   transition: opacity 0.35s, transform 0.45s var(--spring);
 }
 
-.letter-modal--untie .letter-envelope__wax {
+.letter-modal--grab .letter-envelope__wax {
+  transform: translate(-50%, -65%) scale(0.92);
+  transition: transform 0.35s var(--ease);
+}
+
+.letter-modal--tug .letter-envelope__wax {
   opacity: 0;
-  transform: translate(-50%, -50%) scale(0.4);
+  transform: translate(-50%, -140%) scale(0.25) rotate(160deg);
 }
 
 .letter-envelope__name {
@@ -1377,10 +1466,13 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   50% { opacity: 0.9; }
 }
 
-.letter-modal--goose-arrive .letter-envelope__hint,
-.letter-modal--untie .letter-envelope__hint,
-.letter-modal--open-flap .letter-envelope__hint,
-.letter-modal--pull .letter-envelope__hint {
+.letter-modal--fly .letter-envelope__hint,
+.letter-modal--bite .letter-envelope__hint,
+.letter-modal--grab .letter-envelope__hint,
+.letter-modal--tug .letter-envelope__hint,
+.letter-modal--flap .letter-envelope__hint,
+.letter-modal--feet-pull .letter-envelope__hint,
+.letter-modal--unfold .letter-envelope__hint {
   animation: none;
   opacity: 0;
 }
@@ -1389,41 +1481,98 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
 .letter-messenger {
   position: absolute;
   z-index: 8;
-  left: -20%;
-  top: 8%;
+  left: 0;
+  top: 0;
   opacity: 0;
   pointer-events: none;
-  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.5));
+  transform: translate(-15vw, -12vh) rotate(-18deg) scale(0.6);
 }
 
-.letter-modal--goose-arrive .letter-messenger {
-  animation: letterGooseFly 1.15s var(--ease) forwards;
+.letter-modal--fly .letter-messenger {
+  animation: letterGooseFly 1.25s var(--ease) forwards;
 }
 
 .letter-messenger__wing {
-  transform-origin: 18px 28px;
-  animation: wingFlap 0.45s ease-in-out infinite alternate;
+  transform-origin: 22px 44px;
+  animation: wingFlap 0.4s ease-in-out infinite alternate;
+}
+
+.letter-messenger__beak-lower {
+  transform-origin: 54px 24px;
+  transition: transform 0.25s var(--ease);
+}
+
+.letter-messenger__head {
+  transform-origin: 48px 22px;
+  transition: transform 0.3s var(--ease);
+}
+
+.letter-messenger__feet {
+  transform-origin: 28px 58px;
+  transition: transform 0.35s var(--ease);
 }
 
 @keyframes letterGooseFly {
   0% {
     opacity: 0;
-    transform: translate(-10vw, -5vh) rotate(-15deg) scale(0.65);
+    transform: translate(-15vw, -12vh) rotate(-18deg) scale(0.6);
   }
-  18% { opacity: 1; }
-  75% {
-    transform: translate(calc(50vw - 52px), calc(50vh - 48px)) rotate(6deg) scale(1.05);
-  }
+  20% { opacity: 1; }
   100% {
     opacity: 1;
-    transform: translate(calc(50vw - 52px), calc(50vh - 32px)) rotate(0deg) scale(1);
+    transform: translate(calc(50vw - 48px), calc(50vh - 72px)) rotate(-4deg) scale(1);
   }
 }
 
-.letter-modal--untie .letter-messenger,
-.letter-modal--open-flap .letter-messenger {
+.letter-modal--bite .letter-messenger,
+.letter-modal--grab .letter-messenger {
   opacity: 1;
-  transform: translate(calc(50vw - 52px), calc(50vh - 32px));
+  transform: translate(calc(50vw - 48px), calc(50vh - 72px)) rotate(-4deg) scale(1);
+}
+
+.letter-modal--bite .letter-messenger__beak-lower {
+  transform: rotate(32deg);
+}
+
+.letter-modal--bite .letter-messenger__head {
+  transform: rotate(10deg) translateY(2px);
+}
+
+.letter-modal--grab .letter-messenger__head {
+  transform: rotate(18deg) translate(2px, 4px);
+}
+
+.letter-modal--tug .letter-messenger,
+.letter-modal--flap .letter-messenger {
+  opacity: 1;
+  transform: translate(calc(50vw - 48px), calc(50vh - 68px)) rotate(2deg) scale(1);
+  transition: transform 0.4s var(--ease);
+}
+
+.letter-modal--feet-pull .letter-messenger {
+  opacity: 1;
+  transform: translate(calc(50vw - 48px), calc(50vh - 20px)) rotate(6deg) scale(1.02);
+  transition: transform 0.55s var(--ease);
+}
+
+.letter-modal--feet-pull .letter-messenger__feet {
+  animation: feetTug 0.55s ease-in-out infinite alternate;
+}
+
+.letter-modal--feet-pull .letter-messenger__wing {
+  animation: none;
+}
+
+@keyframes feetTug {
+  from { transform: translateY(0); }
+  to { transform: translateY(-4px); }
+}
+
+.letter-modal--unfold .letter-messenger {
+  opacity: 0;
+  transform: translate(calc(50vw - 48px), calc(50vh + 40px)) scale(0.85);
+  transition: opacity 0.5s, transform 0.5s var(--ease);
 }
 
 /* Letter paper */
@@ -1435,12 +1584,17 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   place-items: center;
   padding: clamp(1rem, 4vw, 2rem);
   opacity: 0;
-  transform: translateY(40px) scale(0.94);
-  transition: opacity 0.6s var(--ease), transform 0.7s var(--spring);
+  transform: translateY(60px) scale(0.88);
+  transition: opacity 0.7s var(--ease), transform 0.8s var(--spring);
 }
 
 .letter-paper:not(.hidden) {
   display: grid;
+}
+
+.letter-modal--unfold .letter-paper {
+  opacity: 0.4;
+  transform: translateY(20px) scale(0.92);
 }
 
 .letter-modal--reading .letter-paper {
@@ -1570,20 +1724,24 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .letter-modal--goose-arrive .letter-messenger {
+  .letter-modal--fly .letter-messenger {
     animation: none;
     opacity: 1;
-    left: 50%;
-    top: 42%;
-    transform: translate(-50%, -50%);
+    transform: translate(calc(50vw - 48px), calc(50vh - 40px));
   }
 
   .letter-envelope__flap {
     transition-duration: 0.01ms;
   }
 
-  .letter-envelope__hint {
+  .letter-envelope__hint,
+  .letter-scene__glow {
     animation: none;
+  }
+
+  .letter-modal--feet-pull .letter-envelope__slip {
+    animation: none;
+    transform: translateY(-95%);
   }
 }
 

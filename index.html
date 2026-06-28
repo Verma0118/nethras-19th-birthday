@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20260628c">
+  <link rel="stylesheet" href="css/styles.css?v=20260628d">
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -220,8 +220,10 @@
     <div class="letter-modal__backdrop" data-close-letter></div>
 
     <div class="letter-scene">
+      <div class="letter-scene__glow" aria-hidden="true"></div>
       <div class="letter-scene__vignette" aria-hidden="true"></div>
       <div class="letter-scene__dust" aria-hidden="true"></div>
+      <div class="letter-scene__desk" aria-hidden="true"></div>
 
       <div class="letter-envelope-stage" id="letter-envelope-stage">
         <p class="letter-scene__label">A letter for you</p>
@@ -229,24 +231,34 @@
           <span class="letter-envelope__shadow" aria-hidden="true"></span>
           <span class="letter-envelope__body" aria-hidden="true"></span>
           <span class="letter-envelope__liner" aria-hidden="true"></span>
+          <span class="letter-envelope__slip" id="letter-slip" aria-hidden="true"></span>
           <span class="letter-envelope__flap" id="letter-flap" aria-hidden="true"></span>
           <span class="letter-envelope__string" id="letter-string" aria-hidden="true">
             <span class="letter-envelope__knot"></span>
           </span>
-          <span class="letter-envelope__wax" aria-hidden="true">N</span>
+          <span class="letter-envelope__wax" id="letter-wax" aria-hidden="true">N</span>
           <span class="letter-envelope__name">For Chikki</span>
         </button>
         <p class="letter-envelope__hint" id="letter-hint">tap the envelope</p>
       </div>
 
       <div class="letter-messenger" id="letter-messenger" aria-hidden="true">
-        <svg class="letter-messenger__goose" viewBox="0 0 52 44" width="80" height="68" aria-hidden="true">
-          <ellipse cx="22" cy="30" rx="15" ry="11" fill="#f7f6f0"/>
-          <ellipse class="letter-messenger__wing" cx="18" cy="28" rx="7" ry="5" fill="#ebe9df" transform="rotate(-12 18 28)"/>
-          <path d="M22 22 C24 10 30 6 34 12" stroke="#f7f6f0" stroke-width="7" fill="none" stroke-linecap="round"/>
-          <circle cx="35" cy="11" r="6" fill="#f7f6f0"/>
-          <circle cx="37" cy="10" r="1.4" fill="#2a2a2a"/>
-          <path d="M40 9 L47 7 L40 14 Z" fill="#f0a030"/>
+        <svg class="letter-messenger__goose" viewBox="0 0 80 72" width="96" height="86" aria-hidden="true">
+          <ellipse cx="28" cy="48" rx="18" ry="12" fill="#f7f6f0"/>
+          <ellipse class="letter-messenger__wing" cx="22" cy="44" rx="8" ry="5" fill="#ebe9df" transform="rotate(-12 22 44)"/>
+          <path d="M30 38 C32 28 38 22 44 24" stroke="#f7f6f0" stroke-width="8" fill="none" stroke-linecap="round"/>
+          <g class="letter-messenger__head">
+            <circle cx="48" cy="22" r="8" fill="#f7f6f0"/>
+            <circle cx="50" cy="21" r="1.5" fill="#2a2a2a"/>
+            <g class="letter-messenger__beak">
+              <path class="letter-messenger__beak-upper" d="M54 19 L64 17 L54 24 Z" fill="#f0a030"/>
+              <path class="letter-messenger__beak-lower" d="M54 24 L64 23 L54 28 Z" fill="#e09020"/>
+            </g>
+          </g>
+          <g class="letter-messenger__feet">
+            <path d="M18 58 L12 66 M22 58 L16 66" stroke="#f0a030" stroke-width="2.8" stroke-linecap="round"/>
+            <path d="M30 58 L36 66 M34 58 L40 66" stroke="#f0a030" stroke-width="2.8" stroke-linecap="round"/>
+          </g>
         </svg>
       </div>
 
@@ -269,8 +281,8 @@
   <div class="ambient-bg" aria-hidden="true"></div>
   <div class="film-grain" aria-hidden="true"></div>
 
-  <script src="js/catalog.js?v=20260628c"></script>
-  <script src="js/gooses.js?v=20260628c"></script>
-  <script src="js/app.js?v=20260628c"></script>
+  <script src="js/catalog.js?v=20260628d"></script>
+  <script src="js/gooses.js?v=20260628d"></script>
+  <script src="js/app.js?v=20260628d"></script>
 </body>
 </html>

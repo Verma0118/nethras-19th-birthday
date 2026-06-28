@@ -88,8 +88,8 @@
     window.setTimeout(() => { liveRegion.textContent = msg; }, 30);
   }
 
-  function showGeese(screen) {
-    if (window.GooseField) GooseField.show(screen);
+  function showGeese() {
+    if (window.GooseField && !home.hidden) GooseField.show('home');
   }
 
   function hideGeese() {
@@ -290,7 +290,6 @@
     intro.classList.remove('hidden');
     intro.classList.add('screen--enter');
     announce('Choose your profile');
-    showGeese('intro');
   }
 
   function renderProfiles() {
@@ -649,7 +648,7 @@
     document.body.classList.remove('player-open');
     if (lastFocus) lastFocus.focus();
     announce('Back to browse');
-    if (!home.hidden) showGeese('home');
+    if (!home.hidden) showGeese();
   }
 
   function openInfo(showId) {
@@ -678,7 +677,7 @@
       infoPanel.hidden = true;
       document.body.classList.remove('modal-open');
       if (lastFocus) lastFocus.focus();
-      if (!home.hidden) showGeese('home');
+      if (!home.hidden) showGeese();
     }, reducedMotion ? 0 : 320);
   }
 
@@ -688,10 +687,13 @@
     letterAnimating = false;
     letterModal.classList.remove(
       'letter-modal--open',
-      'letter-modal--goose-arrive',
-      'letter-modal--untie',
-      'letter-modal--open-flap',
-      'letter-modal--pull',
+      'letter-modal--fly',
+      'letter-modal--bite',
+      'letter-modal--grab',
+      'letter-modal--tug',
+      'letter-modal--flap',
+      'letter-modal--feet-pull',
+      'letter-modal--unfold',
       'letter-modal--reading'
     );
     if (letterPaper) letterPaper.classList.add('hidden');
@@ -742,7 +744,7 @@
     if (letterHint) letterHint.textContent = '';
 
     if (reducedMotion) {
-      letterModal.classList.add('letter-modal--untie', 'letter-modal--open-flap', 'letter-modal--pull', 'letter-modal--reading');
+      letterModal.classList.add('letter-modal--tug', 'letter-modal--flap', 'letter-modal--unfold', 'letter-modal--reading');
       if (letterPaper) letterPaper.classList.remove('hidden');
       startInkReveal();
       letterAnimating = false;
@@ -750,15 +752,21 @@
       return;
     }
 
-    letterModal.classList.add('letter-modal--goose-arrive');
-    await wait(1150);
-    letterModal.classList.add('letter-modal--untie');
+    letterModal.classList.add('letter-modal--fly');
+    await wait(1300);
+    letterModal.classList.add('letter-modal--bite');
+    await wait(550);
+    letterModal.classList.add('letter-modal--grab');
+    await wait(450);
+    letterModal.classList.add('letter-modal--tug');
+    await wait(650);
+    letterModal.classList.add('letter-modal--flap');
     await wait(700);
-    letterModal.classList.add('letter-modal--open-flap');
-    await wait(750);
-    letterModal.classList.add('letter-modal--pull');
-    await wait(500);
+    letterModal.classList.add('letter-modal--feet-pull');
+    await wait(1100);
+    letterModal.classList.add('letter-modal--unfold');
     if (letterPaper) letterPaper.classList.remove('hidden');
+    await wait(650);
     letterModal.classList.add('letter-modal--reading');
     await wait(400);
     startInkReveal();
@@ -799,7 +807,7 @@
       letterModal.hidden = true;
       document.body.classList.remove('modal-open');
       if (lastFocus) lastFocus.focus();
-      if (!home.hidden) showGeese('home');
+      if (!home.hidden) showGeese();
     }, reducedMotion ? 0 : 320);
   }
 
@@ -822,7 +830,7 @@
     home.classList.add('screen--enter');
     catalogEl.classList.add('catalog--visible');
     announce(`Welcome to ${CATALOG.brand}`);
-    showGeese('home');
+    showGeese();
     window.setTimeout(() => heroPlay.focus(), 300);
   }
 
@@ -904,7 +912,7 @@
         GooseField.init({ facts: CATALOG.geese.facts, announce });
         const hint = document.getElementById('intro-hint');
         if (hint && CATALOG.geese.hint) {
-          hint.textContent = 'Tap your profile to continue · ' + CATALOG.geese.hint;
+          hint.textContent = 'Tap your profile to continue';
         }
       }
       await runLoader();

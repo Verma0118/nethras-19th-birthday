@@ -35,6 +35,12 @@ html { scroll-behavior: smooth; }
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+
+  .letter-modal.is-animating .letter-messenger__wing,
+  .letter-modal.is-animating .letter-messenger__feet {
+    animation-duration: 0.4s !important;
+    animation-iteration-count: infinite !important;
+  }
 }
 
 body {
@@ -1333,22 +1339,6 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transform: translateY(8%);
   opacity: 0;
-  transition: opacity 0.4s var(--ease);
-}
-
-.letter-modal--flap .letter-envelope__slip,
-.letter-modal--feet-pull .letter-envelope__slip,
-.letter-modal--unfold .letter-envelope__slip {
-  opacity: 1;
-}
-
-.letter-modal--feet-pull .letter-envelope__slip {
-  animation: slipRise 1.05s var(--ease) forwards;
-}
-
-@keyframes slipRise {
-  0% { transform: translateY(8%); }
-  100% { transform: translateY(-95%); }
 }
 
 .letter-envelope__liner {
@@ -1371,13 +1361,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   background: linear-gradient(180deg, #ead8b8 0%, #dcc39a 100%);
   clip-path: polygon(0 0, 50% 72%, 100% 0);
   transform-origin: top center;
-  transition: transform 0.7s var(--ease);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   z-index: 3;
-}
-
-.letter-modal--flap .letter-envelope__flap {
-  transform: perspective(400px) rotateX(175deg);
 }
 
 .letter-envelope__string {
@@ -1389,7 +1374,6 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   background: linear-gradient(180deg, #8b5a2b, #6b4220);
   transform: translateX(-50%);
   z-index: 5;
-  transition: opacity 0.4s, transform 0.5s var(--ease);
 }
 
 .letter-envelope__knot {
@@ -1402,12 +1386,6 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   background: radial-gradient(circle at 35% 30%, #a06830, #5c3818);
   transform: translate(-50%, -50%);
   box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.2), 0 2px 6px rgba(0, 0, 0, 0.35);
-}
-
-.letter-modal--tug .letter-envelope__string,
-.letter-modal--grab .letter-envelope__string {
-  opacity: 0;
-  transform: translateX(-50%) scaleY(0.2);
 }
 
 .letter-envelope__wax {
@@ -1427,17 +1405,6 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   background: radial-gradient(circle at 35% 30%, #c43b3b, #7a1a1a);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), inset 0 2px 6px rgba(255, 255, 255, 0.2);
   transform: translate(-50%, -50%);
-  transition: opacity 0.35s, transform 0.45s var(--spring);
-}
-
-.letter-modal--grab .letter-envelope__wax {
-  transform: translate(-50%, -65%) scale(0.92);
-  transition: transform 0.35s var(--ease);
-}
-
-.letter-modal--tug .letter-envelope__wax {
-  opacity: 0;
-  transform: translate(-50%, -140%) scale(0.25) rotate(160deg);
 }
 
 .letter-envelope__name {
@@ -1466,13 +1433,13 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   50% { opacity: 0.9; }
 }
 
-.letter-modal--fly .letter-envelope__hint,
-.letter-modal--bite .letter-envelope__hint,
-.letter-modal--grab .letter-envelope__hint,
-.letter-modal--tug .letter-envelope__hint,
-.letter-modal--flap .letter-envelope__hint,
-.letter-modal--feet-pull .letter-envelope__hint,
-.letter-modal--unfold .letter-envelope__hint {
+.letter-modal.is-animating .letter-envelope {
+  pointer-events: none;
+  transform: none;
+}
+
+.letter-modal.is-animating .letter-envelope__hint,
+.letter-modal[data-letter-stage] .letter-envelope__hint {
   animation: none;
   opacity: 0;
 }
@@ -1483,19 +1450,20 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   z-index: 8;
   left: 0;
   top: 0;
+  width: 96px;
+  height: 86px;
   opacity: 0;
   pointer-events: none;
   filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.5));
-  transform: translate(-15vw, -12vh) rotate(-18deg) scale(0.6);
+  will-change: transform, opacity;
 }
 
-.letter-modal--fly .letter-messenger {
-  animation: letterGooseFly 1.25s var(--ease) forwards;
+.letter-modal.is-animating .letter-messenger__wing {
+  animation: wingFlap 0.4s ease-in-out infinite alternate;
 }
 
 .letter-messenger__wing {
   transform-origin: 22px 44px;
-  animation: wingFlap 0.4s ease-in-out infinite alternate;
 }
 
 .letter-messenger__beak-lower {
@@ -1513,66 +1481,30 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   transition: transform 0.35s var(--ease);
 }
 
-@keyframes letterGooseFly {
-  0% {
-    opacity: 0;
-    transform: translate(-15vw, -12vh) rotate(-18deg) scale(0.6);
-  }
-  20% { opacity: 1; }
-  100% {
-    opacity: 1;
-    transform: translate(calc(50vw - 48px), calc(50vh - 72px)) rotate(-4deg) scale(1);
-  }
-}
-
-.letter-modal--bite .letter-messenger,
-.letter-modal--grab .letter-messenger {
-  opacity: 1;
-  transform: translate(calc(50vw - 48px), calc(50vh - 72px)) rotate(-4deg) scale(1);
-}
-
-.letter-modal--bite .letter-messenger__beak-lower {
+.letter-modal[data-letter-stage="bite"] .letter-messenger__beak-lower {
   transform: rotate(32deg);
 }
 
-.letter-modal--bite .letter-messenger__head {
+.letter-modal[data-letter-stage="bite"] .letter-messenger__head {
   transform: rotate(10deg) translateY(2px);
 }
 
-.letter-modal--grab .letter-messenger__head {
+.letter-modal[data-letter-stage="grab"] .letter-messenger__head,
+.letter-modal[data-letter-stage="tug"] .letter-messenger__head {
   transform: rotate(18deg) translate(2px, 4px);
 }
 
-.letter-modal--tug .letter-messenger,
-.letter-modal--flap .letter-messenger {
-  opacity: 1;
-  transform: translate(calc(50vw - 48px), calc(50vh - 68px)) rotate(2deg) scale(1);
-  transition: transform 0.4s var(--ease);
-}
-
-.letter-modal--feet-pull .letter-messenger {
-  opacity: 1;
-  transform: translate(calc(50vw - 48px), calc(50vh - 20px)) rotate(6deg) scale(1.02);
-  transition: transform 0.55s var(--ease);
-}
-
-.letter-modal--feet-pull .letter-messenger__feet {
+.letter-modal[data-letter-stage="feet-pull"] .letter-messenger__feet {
   animation: feetTug 0.55s ease-in-out infinite alternate;
 }
 
-.letter-modal--feet-pull .letter-messenger__wing {
+.letter-modal[data-letter-stage="feet-pull"] .letter-messenger__wing {
   animation: none;
 }
 
 @keyframes feetTug {
   from { transform: translateY(0); }
   to { transform: translateY(-4px); }
-}
-
-.letter-modal--unfold .letter-messenger {
-  opacity: 0;
-  transform: translate(calc(50vw - 48px), calc(50vh + 40px)) scale(0.85);
-  transition: opacity 0.5s, transform 0.5s var(--ease);
 }
 
 /* Letter paper */
@@ -1721,28 +1653,6 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   transform: translateX(-50%);
   background: linear-gradient(180deg, #ead8b8, #dcc39a);
   clip-path: polygon(0 0, 50% 100%, 100% 0);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .letter-modal--fly .letter-messenger {
-    animation: none;
-    opacity: 1;
-    transform: translate(calc(50vw - 48px), calc(50vh - 40px));
-  }
-
-  .letter-envelope__flap {
-    transition-duration: 0.01ms;
-  }
-
-  .letter-envelope__hint,
-  .letter-scene__glow {
-    animation: none;
-  }
-
-  .letter-modal--feet-pull .letter-envelope__slip {
-    animation: none;
-    transform: translateY(-95%);
-  }
 }
 
 /* Placeholders */

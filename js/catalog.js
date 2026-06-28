@@ -147,7 +147,13 @@ const CATALOG = {
 
   letter: {
     title: 'For Chikki',
-    body: 'filler for now',
+    body: `happy birthday love. All week this week you've been saying oh its just another day or oh its not that important blah blah blah well guess what you're wrong and i'm right so now suck it up. Your birthday isn't just another day to me, it's one of the most important days to me because today gave me my person, the most wonderful person I've ever met my entire life. I've only known you 11 months but these 11 months have been the best of my life. I know that the people around you, your friends, your family, me, i know you've made all of our lives better just by being here. There'll be days where you don't think so, there'll be days where you doubt yourself but I want you to know that I am always proud of you and Chikki you are the biggest blessing in my life, you are every wish I've ever made and will ever make, every 11:11, every birthday candle, every eyelash, love it's always been you.
+
+I hope you have the best birthday, I love you with all my heart, you are my world and baby,
+
+i miss you
+i love you
+Happy birthday chikki.`,
     signoff: 'Aarav ♥',
   },
 

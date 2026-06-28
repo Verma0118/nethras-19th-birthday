@@ -61,9 +61,16 @@
   const letterSignoff = document.getElementById('letter-signoff');
   const letterDate = document.getElementById('letter-date');
   const letterHint = document.getElementById('letter-hint');
+  const letterMessenger = document.getElementById('letter-messenger');
+  const letterWax = document.getElementById('letter-wax');
+  const letterSlip = document.getElementById('letter-slip');
+  const letterFlap = document.getElementById('letter-flap');
+  const letterString = document.getElementById('letter-string');
+  const letterScene = document.querySelector('.letter-scene');
 
   let letterAnimating = false;
   let letterInkTimer = null;
+  let letterMotion = [];
 
   let lastFocus = null;
   let featuredShow = null;
@@ -685,17 +692,27 @@
     window.clearInterval(letterInkTimer);
     letterInkTimer = null;
     letterAnimating = false;
-    letterModal.classList.remove(
-      'letter-modal--open',
-      'letter-modal--fly',
-      'letter-modal--bite',
-      'letter-modal--grab',
-      'letter-modal--tug',
-      'letter-modal--flap',
-      'letter-modal--feet-pull',
-      'letter-modal--unfold',
-      'letter-modal--reading'
-    );
+    letterMotion.forEach((anim) => { try { anim.cancel(); } catch (e) { /* noop */ } });
+    letterMotion = [];
+    letterModal.classList.remove('letter-modal--open', 'letter-modal--reading', 'letter-modal--unfold', 'is-animating');
+    delete letterModal.dataset.letterStage;
+    if (letterMessenger) {
+      letterMessenger.style.opacity = '';
+      letterMessenger.style.transform = '';
+    }
+    if (letterWax) {
+      letterWax.style.opacity = '';
+      letterWax.style.transform = '';
+    }
+    if (letterSlip) {
+      letterSlip.style.opacity = '';
+      letterSlip.style.transform = '';
+    }
+    if (letterFlap) letterFlap.style.transform = '';
+    if (letterString) {
+      letterString.style.opacity = '';
+      letterString.style.transform = '';
+    }
     if (letterPaper) letterPaper.classList.add('hidden');
     if (letterInk) {
       letterInk.textContent = '';
@@ -704,6 +721,130 @@
     if (letterSignoff) letterSignoff.classList.add('hidden');
     if (letterOpenBtn) letterOpenBtn.disabled = false;
     if (letterHint) letterHint.textContent = 'tap the envelope';
+  }
+
+  function setLetterStage(stage) {
+    if (stage) letterModal.dataset.letterStage = stage;
+    else delete letterModal.dataset.letterStage;
+  }
+
+  function getSceneOffset() {
+    if (!letterScene) return { left: 0, top: 0 };
+    const rect = letterScene.getBoundingClientRect();
+    return { left: rect.left, top: rect.top };
+  }
+
+  function toSceneCoords(viewportX, viewportY) {
+    const offset = getSceneOffset();
+    return {
+      x: viewportX - offset.left,
+      y: viewportY - offset.top,
+    };
+  }
+
+  function getEnvelopeMetrics() {
+    const rect = letterOpenBtn.getBoundingClientRect();
+    const center = toSceneCoords(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    const wax = toSceneCoords(rect.left + rect.width / 2, rect.top + rect.height * 0.48);
+    const bottom = toSceneCoords(rect.left + rect.width / 2, rect.top + rect.height * 0.72);
+    return {
+      centerX: center.x,
+      waxY: wax.y,
+      bottomY: bottom.y,
+      width: rect.width,
+      height: rect.height,
+    };
+  }
+
+  function trackMotion(anim) {
+    if (!anim) return anim;
+    letterMotion.push(anim);
+    anim.addEventListener('finish', () => {
+      letterMotion = letterMotion.filter((a) => a !== anim);
+    }, { once: true });
+    return anim;
+  }
+
+  function animateEl(el, keyframes, options) {
+    if (!el || reducedMotion) return Promise.resolve();
+    return trackMotion(el.animate(keyframes, options)).finished.catch(() => {});
+  }
+
+  async function letterGooseFlyIn() {
+    const m = getEnvelopeMetrics();
+    const endX = m.centerX - 48;
+    const endY = m.waxY - 78;
+    letterMessenger.style.opacity = '1';
+    await animateEl(letterMessenger, [
+      { transform: `translate(${endX - 220}px, ${endY - 200}px) rotate(-22deg) scale(0.45)`, opacity: 0 },
+      { transform: `translate(${endX}px, ${endY}px) rotate(-6deg) scale(1)`, opacity: 1 },
+    ], { duration: 1200, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' });
+    letterMessenger.style.transform = `translate(${endX}px, ${endY}px) rotate(-6deg) scale(1)`;
+  }
+
+  async function letterGooseBiteAndTug() {
+    setLetterStage('bite');
+    await wait(500);
+    setLetterStage('grab');
+    await wait(400);
+
+    await animateEl(letterWax, [
+      { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+      { transform: 'translate(-50%, -80%) scale(0.95)', opacity: 1 },
+    ], { duration: 280, easing: 'ease-out', fill: 'forwards' });
+
+    setLetterStage('tug');
+    await animateEl(letterWax, [
+      { transform: 'translate(-50%, -80%) scale(0.95)', opacity: 1 },
+      { transform: 'translate(-50%, -180%) scale(0.2) rotate(140deg)', opacity: 0 },
+    ], { duration: 450, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' });
+
+    if (letterString) {
+      await animateEl(letterString, [
+        { opacity: 1, transform: 'translateX(-50%) scaleY(1)' },
+        { opacity: 0, transform: 'translateX(-50%) scaleY(0.1)' },
+      ], { duration: 300, fill: 'forwards' });
+    }
+  }
+
+  async function letterOpenFlap() {
+    setLetterStage('flap');
+    letterSlip.style.opacity = '1';
+    await animateEl(letterFlap, [
+      { transform: 'perspective(700px) rotateX(0deg)' },
+      { transform: 'perspective(700px) rotateX(165deg)' },
+    ], { duration: 650, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' });
+  }
+
+  async function letterGooseFeetPull() {
+    const m = getEnvelopeMetrics();
+    const x = m.centerX - 48;
+    const startY = m.waxY - 78;
+    const endY = m.bottomY - 40;
+    setLetterStage('feet-pull');
+
+    const gooseMove = animateEl(letterMessenger, [
+      { transform: `translate(${x}px, ${startY}px) rotate(-6deg) scale(1)` },
+      { transform: `translate(${x}px, ${endY}px) rotate(10deg) scale(1.06)` },
+    ], { duration: 900, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'forwards' });
+
+    const slipPull = animateEl(letterSlip, [
+      { transform: 'translateY(8%)' },
+      { transform: 'translateY(-108%)' },
+    ], { duration: 1000, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' });
+
+    await Promise.all([gooseMove, slipPull]);
+    letterMessenger.style.transform = `translate(${x}px, ${endY}px) rotate(10deg) scale(1.06)`;
+  }
+
+  async function letterGooseExit() {
+    const m = getEnvelopeMetrics();
+    const x = m.centerX - 48;
+    const y = m.bottomY + 60;
+    await animateEl(letterMessenger, [
+      { opacity: 1, transform: letterMessenger.style.transform },
+      { opacity: 0, transform: `translate(${x}px, ${y}px) rotate(14deg) scale(0.7)` },
+    ], { duration: 500, easing: 'ease-in', fill: 'forwards' });
   }
 
   function getLetterText() {
@@ -742,36 +883,42 @@
     letterAnimating = true;
     if (letterOpenBtn) letterOpenBtn.disabled = true;
     if (letterHint) letterHint.textContent = '';
+    letterModal.classList.add('is-animating');
 
     if (reducedMotion) {
-      letterModal.classList.add('letter-modal--tug', 'letter-modal--flap', 'letter-modal--unfold', 'letter-modal--reading');
+      setLetterStage('flap');
+      letterSlip.style.opacity = '1';
+      letterSlip.style.transform = 'translateY(-108%)';
+      if (letterWax) letterWax.style.opacity = '0';
+      letterModal.classList.add('letter-modal--unfold', 'letter-modal--reading');
       if (letterPaper) letterPaper.classList.remove('hidden');
+      letterModal.classList.remove('is-animating');
       startInkReveal();
       letterAnimating = false;
       letterPaper.querySelector('.letter-paper__close').focus();
       return;
     }
 
-    letterModal.classList.add('letter-modal--fly');
-    await wait(1300);
-    letterModal.classList.add('letter-modal--bite');
-    await wait(550);
-    letterModal.classList.add('letter-modal--grab');
-    await wait(450);
-    letterModal.classList.add('letter-modal--tug');
-    await wait(650);
-    letterModal.classList.add('letter-modal--flap');
-    await wait(700);
-    letterModal.classList.add('letter-modal--feet-pull');
-    await wait(1100);
-    letterModal.classList.add('letter-modal--unfold');
-    if (letterPaper) letterPaper.classList.remove('hidden');
-    await wait(650);
-    letterModal.classList.add('letter-modal--reading');
-    await wait(400);
-    startInkReveal();
-    letterAnimating = false;
-    letterPaper.querySelector('.letter-paper__close').focus();
+    try {
+      await wait(80);
+      setLetterStage('fly');
+      await letterGooseFlyIn();
+      await letterGooseBiteAndTug();
+      await letterOpenFlap();
+      await letterGooseFeetPull();
+      letterModal.classList.add('letter-modal--unfold');
+      if (letterPaper) letterPaper.classList.remove('hidden');
+      await wait(350);
+      await letterGooseExit();
+      setLetterStage('reading');
+      letterModal.classList.add('letter-modal--reading');
+      await wait(300);
+      startInkReveal();
+      letterPaper.querySelector('.letter-paper__close').focus();
+    } finally {
+      letterModal.classList.remove('is-animating');
+      letterAnimating = false;
+    }
   }
 
   function openLetter() {

@@ -14,20 +14,23 @@
 
   const PATHS = {
     intro: [
-      { id: 'a', dur: 22, delay: 0, keyframes: 'goosePathIntroA', start: 'translate(12vw, 72vh) scaleX(1)' },
-      { id: 'b', dur: 26, delay: 2, keyframes: 'goosePathIntroB', start: 'translate(82vw, 28vh) scaleX(-1)' },
+      { id: 'a', dur: 22, delay: 0, keyframes: 'goosePathIntroA', start: 'translate(12vw, 72vh)' },
+      { id: 'b', dur: 26, delay: 2, keyframes: 'goosePathIntroB', start: 'translate(82vw, 28vh)' },
     ],
     home: [
-      { id: 'a', dur: 24, delay: 0, keyframes: 'goosePathHomeA', start: 'translate(6vw, 24vh) scaleX(1)' },
-      { id: 'b', dur: 28, delay: 1.5, keyframes: 'goosePathHomeB', start: 'translate(90vw, 62vh) scaleX(-1)' },
-      { id: 'c', dur: 20, delay: 3, keyframes: 'goosePathHomeC', start: 'translate(22vw, 82vh) scaleX(1)' },
-      { id: 'd', dur: 32, delay: 0.5, keyframes: 'goosePathHomeD', start: 'translate(75vw, 18vh) scaleX(-1)' },
+      { id: 'a', dur: 24, delay: 0, keyframes: 'goosePathHomeA', start: 'translate(6vw, 24vh)' },
+      { id: 'b', dur: 28, delay: 1.5, keyframes: 'goosePathHomeB', start: 'translate(90vw, 62vh)' },
+      { id: 'c', dur: 20, delay: 3, keyframes: 'goosePathHomeC', start: 'translate(22vw, 82vh)' },
+      { id: 'd', dur: 32, delay: 0.5, keyframes: 'goosePathHomeD', start: 'translate(75vw, 18vh)' },
+      { id: 'e', dur: 26, delay: 2, keyframes: 'goosePathHomeE', start: 'translate(48vw, 45vh)' },
+      { id: 'f', dur: 22, delay: 4, keyframes: 'goosePathHomeF', start: 'translate(15vw, 42vh)' },
     ],
   };
 
   let field = null;
   let facts = [];
-  let factIndex = 0;
+  let recentFacts = [];
+  const RECENT_LIMIT = 8;
   let activeGoose = null;
   let announceFn = null;
   let reducedMotion = false;
@@ -44,12 +47,14 @@
 
   function nextFact() {
     if (!facts.length) return 'Did you know geese are secretly the best animals ever?';
-    const fact = facts[factIndex % facts.length];
-    factIndex += 1;
-    if (factIndex >= facts.length) {
-      facts = shuffle(facts);
-      factIndex = 0;
+    let pool = facts.filter((f) => !recentFacts.includes(f));
+    if (!pool.length) {
+      recentFacts = [];
+      pool = facts.slice();
     }
+    const fact = pool[Math.floor(Math.random() * pool.length)];
+    recentFacts.push(fact);
+    if (recentFacts.length > RECENT_LIMIT) recentFacts.shift();
     return fact;
   }
 
@@ -162,7 +167,7 @@
 
   function init(options) {
     facts = shuffle(options.facts || []);
-    factIndex = 0;
+    recentFacts = [];
     announceFn = options.announce || null;
     reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     field = document.getElementById('goose-field');

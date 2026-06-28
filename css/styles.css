@@ -1383,39 +1383,51 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
 .goose__bubble-text { position: relative; z-index: 1; }
 
 @keyframes goosePathIntroA {
-  0% { transform: translate(12vw, 72vh) scaleX(1); }
-  50% { transform: translate(48vw, 18vh) scaleX(1); }
-  100% { transform: translate(78vw, 55vh) scaleX(-1); }
+  0% { transform: translate(12vw, 72vh); }
+  50% { transform: translate(48vw, 18vh); }
+  100% { transform: translate(78vw, 55vh); }
 }
 
 @keyframes goosePathIntroB {
-  0% { transform: translate(82vw, 28vh) scaleX(-1); }
-  50% { transform: translate(38vw, 68vh) scaleX(-1); }
-  100% { transform: translate(14vw, 32vh) scaleX(1); }
+  0% { transform: translate(82vw, 28vh); }
+  50% { transform: translate(38vw, 68vh); }
+  100% { transform: translate(14vw, 32vh); }
 }
 
 @keyframes goosePathHomeA {
-  0% { transform: translate(6vw, 24vh) scaleX(1); }
-  50% { transform: translate(62vw, 14vh) scaleX(1); }
-  100% { transform: translate(88vw, 38vh) scaleX(-1); }
+  0% { transform: translate(6vw, 24vh); }
+  50% { transform: translate(62vw, 14vh); }
+  100% { transform: translate(88vw, 38vh); }
 }
 
 @keyframes goosePathHomeB {
-  0% { transform: translate(90vw, 62vh) scaleX(-1); }
-  50% { transform: translate(42vw, 78vh) scaleX(-1); }
-  100% { transform: translate(8vw, 48vh) scaleX(1); }
+  0% { transform: translate(90vw, 62vh); }
+  50% { transform: translate(42vw, 78vh); }
+  100% { transform: translate(8vw, 48vh); }
 }
 
 @keyframes goosePathHomeC {
-  0% { transform: translate(22vw, 82vh) scaleX(1); }
-  50% { transform: translate(72vw, 68vh) scaleX(-1); }
-  100% { transform: translate(55vw, 22vh) scaleX(-1); }
+  0% { transform: translate(22vw, 82vh); }
+  50% { transform: translate(72vw, 68vh); }
+  100% { transform: translate(55vw, 22vh); }
 }
 
 @keyframes goosePathHomeD {
-  0% { transform: translate(75vw, 18vh) scaleX(-1); }
-  50% { transform: translate(18vw, 38vh) scaleX(1); }
-  100% { transform: translate(35vw, 72vh) scaleX(1); }
+  0% { transform: translate(75vw, 18vh); }
+  50% { transform: translate(18vw, 38vh); }
+  100% { transform: translate(35vw, 72vh); }
+}
+
+@keyframes goosePathHomeE {
+  0% { transform: translate(48vw, 45vh); }
+  50% { transform: translate(68vw, 52vh); }
+  100% { transform: translate(32vw, 58vh); }
+}
+
+@keyframes goosePathHomeF {
+  0% { transform: translate(15vw, 42vh); }
+  50% { transform: translate(28vw, 28vh); }
+  100% { transform: translate(52vw, 36vh); }
 }
 
 @media (max-width: 640px) {
@@ -1429,9 +1441,11 @@ button:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset:
   }
 
   .goose[data-path="a"] { transform: translate(12vw, 22vh); }
-  .goose[data-path="b"] { transform: translate(78vw, 30vh) scaleX(-1); }
+  .goose[data-path="b"] { transform: translate(78vw, 30vh); }
   .goose[data-path="c"] { transform: translate(20vw, 70vh); }
-  .goose[data-path="d"] { transform: translate(72vw, 68vh) scaleX(-1); }
+  .goose[data-path="d"] { transform: translate(72vw, 68vh); }
+  .goose[data-path="e"] { transform: translate(48vw, 45vh); }
+  .goose[data-path="f"] { transform: translate(15vw, 42vh); }
 
   .goose__trail,
   .goose__wing,
